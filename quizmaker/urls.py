@@ -20,7 +20,7 @@ from django.views.generic import RedirectView
 from accounts.views import NotFound
 
 urlpatterns = [
-    re_path(r'^accounts/social/signup$', NotFound),    
+    re_path(r'^accounts/social/signup', NotFound),    
     re_path(r'^accounts\/(signup/*|password\S*|inactive/*|(confirm-){0,1}email\S*|password\S*)$', NotFound),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^accounts/', include('allauth.urls')),
