@@ -71,7 +71,9 @@ class UserProfile(models.Model):
         return ans
     
     def get_correct_response_count(self):
-        return self.teststats.filter(has_completed=True).aggregate(Sum('score')).get("score__sum")
+        if self.teststats.filter(has_completed=True).exists():
+            return self.teststats.filter(has_completed=True).aggregate(Sum('score')).get("score__sum", 0)
+        return 0
     
     def get_wrong_response_count(self):
         ans = 0
