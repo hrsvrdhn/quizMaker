@@ -341,9 +341,9 @@ def RecommendedTest(request):
 def MostPopularTest(request):
 	if request.user.is_authenticated:
 		user_profile = get_object_or_404(UserProfile, user__user=request.user)		
-		most_popular = sorted(Test.objects.exclude(owner=user_profile, publish=False, is_active=False), key=lambda x:x.get_attempts(), reverse=True)[:5]
+		most_popular = sorted(Test.objects.exclude(owner=user_profile).filter(publish=True, is_active=True), key=lambda x:x.get_attempts(), reverse=True)[:5]
 	else:
-		most_popular = sorted(Test.objects.exclude(publish=False, is_active=False), key=lambda x:x.get_attempts(), reverse=True)[:5]
+		most_popular = sorted(Test.objects.filter(publish=True, is_active=True), key=lambda x:x.get_attempts(), reverse=True)[:5]
 	serializer = TestSerializerForHome(most_popular, many=True)
 	return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -351,9 +351,9 @@ def MostPopularTest(request):
 def NewTest(request):
 	if request.user.is_authenticated:
 		user_profile = get_object_or_404(UserProfile, user__user=request.user)
-		new_tests = Test.objects.exclude(owner=user_profile, publish=False, is_active=False).order_by("-created_on")[:5]
+		new_tests = Test.objects.exclude(owner=user_profile).filter(publish=True, is_active=True).order_by("-created_on")[:5]
 	else:
-		new_tests = Test.objects.exclude(publish=False, is_active=False).order_by("-created_on")[:5]
+		new_tests = Test.objects.filter(publish=True, is_active=True).order_by("-created_on")[:5]
 	serializer = TestSerializerForHome(new_tests, many=True)
 	return Response(serializer.data, status=status.HTTP_200_OK)
 	
