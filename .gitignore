@@ -4,6 +4,7 @@ pip-selfcheck.json
 
 .vscode/
 db.sqlite3
+quizmaker/settings/local.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
