@@ -16,7 +16,10 @@
     </div>
     <div class="row">
       <div class="col s12 l12">
-        <div id="recommended" class="carousel" style="height: 250px">         
+        <div id="recommended" class="carousel" style="height: 300px">         
+        </div>
+        <div class="carousel-fixed-item center">
+            <a class="recommendedBtn btn waves-effect">button</a>
         </div>      
       </div>
     </div>
@@ -27,7 +30,10 @@
     </div>
     <div class="row">
       <div class="col s12 l12">
-        <div id="most_popular" class="carousel" style="height: 250px">         
+        <div id="most_popular" class="carousel" style="height: 300px">        
+        </div>
+        <div class="carousel-fixed-item center">
+          <a class="most_popularBtn btn waves-effect">button</a>
         </div>
       </div>     
     </div>
@@ -38,7 +44,10 @@
     </div>
     <div class="row">
       <div class="col s12 l12">
-        <div id="new_test" class="carousel" style="height: 250px">
+        <div id="new_test" class="carousel" style="height: 300px">
+        </div>
+        <div class="carousel-fixed-item center">
+            <a class="new_testBtn btn waves-effect">button</a>
         </div>
       </div>     
     </div>
@@ -131,18 +140,24 @@
       $(carouselId).empty();
       if(data === undefined || data.length === 0) {
         $(".".concat(carouselId.substr(1))).empty();
+        $(".".concat(carouselId.substr(1).concat("Btn"))).remove();
         $(carouselId).remove();
         return false;
       }
       data.forEach((test, index) => {
         $(carouselId).append(`
-        <div class="carousel-item l4 card testcard z-depth-5" style="width: auto"><div class="card-content grey-text text-darken-3"><a href="/quiz/${test.id}/detail"><span class="card-title grey-text text-darken-4">${test.name}</span></a><br>by <a href="/user/${test.owner_username}" class="grey-text text-darken-4">${test.owner}</a><br>Attempts: ${test.attempts}<br>Average Rating: ${test.rating}<br>Created on: ${test.date_created}</div></div>
+        <div class="carousel-item l4 card testcard z-depth-5" style="width: auto">
+        <div class="card-content grey-text text-darken-3"><span class="card-title grey-text text-darken-4" data-detail="/quiz/${test.id}/detail">${test.name}</span><br>by <a href="/user/${test.owner_username}" class="grey-text text-darken-4">${test.owner}</a><br>Attempts: ${test.attempts}<br>Average Rating: ${test.rating}<br>Created on: ${test.date_created}</div></div>
         `)
       });
       $(carouselId).carousel({
         dist:-30,
         shift:20,
         padding:50,
+        onCycleTo: function(data) {
+          $(".".concat(carouselId.substr(1).concat("Btn"))).html($(data).find(".card-title").html()+ " =>");
+          $(".".concat(carouselId.substr(1).concat("Btn"))).attr("href",($(data).find(".card-title").attr("data-detail")));          
+        }
       });
     }
     function errorCarousel(carouselId) {

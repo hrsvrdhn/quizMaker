@@ -74,10 +74,14 @@
           <li><a href="{% url 'quiz:mytest' %}">My Test</a></li><hr/>
           <li><a href="{% url 'user:myprofile' %}">My Profile</a></li><hr/>
           <li>
+            {% if request.user.is_authenticated %}            
             <form method="post" action="/accounts/logout/">
               {% csrf_token %}
-            <button type="submit" class="waves-effect waves-light btn-flat" href="/accounts/logout"><span style="text-transform: none"><b>Logout</b></span></button>
+            <button type="submit" class="waves-effect waves-light btn-flat" href="#" onclick="this.parentNode.submit(); return false;"><span style="text-transform: none"><b>Logout</b></span></button>
             </form>
+            {% else %}
+            <a class="waves-effect waves-light btn-flat" href="{% url 'account_login' %}"><span style="text-transform: none"><b>Login</b></span></i></a>            
+            {% endif %}
           </li><hr/>  
         </ul>
       </div>
