@@ -91,7 +91,7 @@ def Profile(request, username=None):
         'questions_attempted_count': profile.get_attempts_count(),
         'correct_reponse_count': profile.get_correct_response_count(),
         'wrong_response_count': profile.get_wrong_response_count(),
-        'accuracy': profile.get_accuracy()*100,
+        'accuracy': profile.get_accuracy(),
         'user_context': user_context,
     }
     return render(request, 'profile.html', context)
