@@ -13,18 +13,21 @@
                 <div class="row">
                     <div class="col s8 l4 offset-s2">
                         <h3 class="card-title grey-text text-darken-4" style="font-size:2.2rem">{{ name }}</h3>
+                        <span class=" grey-text text-darken-2"></span>                                       
                     </div>
                     <div class="col s6 l2 center-align">
-                            <h4 class="card-title grey-text text-darken-4">{{ test.get_attempts }}</h4>
-                            <span class=" grey-text text-darken-2">Total Submissions</span>                        
+                        <h3 class="card-title grey-text text-darken-4">{{ total_tests_taken }}</h3>
+                        <span class=" grey-text text-darken-2">Tests Taken</span>                        
+                    </div>
+                    <div class="col s6 l2 center-align">
+                        <h3 class="card-title grey-text text-darken-4">{{ accuracy }}%</h3>
+                        <span class=" grey-text text-darken-2">Accuracy</span>                        
                     </div>
                 </div>
             </div>
             <div class="card-action">
                 {% if not owner %}<a class="togglefollow" href="#" data-url="{{ get_follow_url }}">{% if following %}Unfollow{% else %}Follow{% endif %}</a>{% endif %}
                 <a class="activator">Favourite Topics <i class="material-icons" style="vertical-align: middle">eject</i></a>
-                <a href="#">{{ total_tests_taken }}</a>
-                <a href="#">{{ accuracy }}</a>                
             </div>
         </div>
         <div class="card-reveal">

@@ -81,7 +81,7 @@ class UserProfile(models.Model):
     
     def get_accuracy(self):
         try:
-            return self.get_correct_response_count() / self.get_attempts_count()
+            return round(self.get_correct_response_count() / self.get_attempts_count(),2)
         except:
             return None
 
