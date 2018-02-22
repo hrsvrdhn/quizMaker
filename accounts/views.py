@@ -62,15 +62,18 @@ def Profile(request, username=None):
     profile = get_object_or_404(UserProfile, user__user__username=username)
     owner = False
     r = tests_taken = None
-    try:
-        user_profile = UserProfile.objects.get(user__user=request.user)
+    if request.user.is_authenticated:
+        user_profile = get_object_or_404(UserProfile ,user__user=request.user)
         following = UserProfile.objects.is_following(user_profile, profile)
         if user_profile == profile:
             owner = True
             tests_taken = TestStat.objects.filter(candidate=user_profile)
+    else:
+        following = False
+    try:
         r = requests.get(profile.user.get_avatar_url()).url
     except:
-        following = False
+        pass
     user_context =  {
         'name': profile.user.extra_data['name'],
         'profile_pic': r,
