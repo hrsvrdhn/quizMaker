@@ -1,0 +1,156 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+<style>
+  .grey-text a:hover {
+    font-weight: bold;
+  }
+</style>
+<div style="margin: 2rem">
+  <div class="row">
+    <div class="col s12 l8">
+    <div class="row">
+      <div class="col s12 l12 grey-text text-darken-4 recommended">
+        <h5>Recommeded for you</h5>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 l12">
+        <div id="recommended" class="carousel" style="height: 250px">         
+        </div>      
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 l12 grey-text text-darken-4 most_popular">
+        <h5>Most Popular</h5>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 l12">
+        <div id="most_popular" class="carousel" style="height: 250px">         
+        </div>
+      </div>     
+    </div>
+    <div class="row">
+        <div class="col s12 l12 grey-text text-darken-4 new_test">
+          <h5>New Tests</h5>         
+        </div>
+    </div>
+    <div class="row">
+      <div class="col s12 l12">
+        <div id="new_test" class="carousel" style="height: 250px">
+        </div>
+      </div>     
+    </div>
+    </div>
+    <div class="col s12 l4 right">
+        <div class="row">
+          <div class="col s12 l12">
+            <ul class="topscorers collection with-header z-depth-4">
+              <li class="collection-header avatar">
+                <i class="material-icons yellow-text circle">star</i>
+                <span style="font-size:1.5rem">Top 3 Scorers</span>
+              </li>
+              <div class="progress">
+                <div class="indeterminate"></div>
+              </div>
+            </ul>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+<script>
+  $(document).ready(function(){
+    $(".carousel").append(`
+    <div class="preloader-wrapper big active">
+    <div class="spinner-layer spinner-blue-only">
+      <div class="circle-clipper left">
+        <div class="circle"></div>
+      </div><div class="gap-patch">
+        <div class="circle"></div>
+      </div><div class="circle-clipper right">
+        <div class="circle"></div>
+      </div>
+    </div>
+  </div>
+    `)
+    $(".progress").css("display","block");
+    $.ajax({
+      method: 'GET',
+      url: "{% url 'user:topscorers' %}",
+      success: function(data, textStatus, jqXHR){
+        data.forEach((userData, index) => {
+          $(".topscorers").append(`
+            <li><a href="/user/${userData.username}" class="collection-item"><div class="row"><div class="col s9 grey-text text-darken-4">${index+1}. ${userData.name}</div><div class="col s3">${userData.total_score}</div></div></a></li>
+          `)
+        });
+        $(".progress").hide(500);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        new PNotify({
+          text:'Failed to load top scorers list',
+          type:"error",
+        })
+        console.log(jqXHR);
+      }
+    });
+    $.ajax({
+      method: 'GET',
+      url: "{% url 'quiz:recommended_list' %}",
+      success: function(data, textStatus, jqXHR){
+        loadDataCarousel(data, "#recommended");
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        errorCarousel("#recommended");
+      }
+    });
+    $.ajax({
+      method: 'GET',
+      url: "{% url 'quiz:most_popular' %}",
+      success: function(data, textStatus, jqXHR) {
+        loadDataCarousel(data, "#most_popular");
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        errorCarousel("#most_popular");
+      }
+    });
+    $.ajax({
+      method: 'GET',
+      url: "{% url 'quiz:new_test' %}",
+      success: function(data, textStatus, jqXHR) {
+        loadDataCarousel(data, "#new_test");
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        errorCarousel("#new_test");
+      }
+    });
+    function loadDataCarousel(data, carouselId) {
+      $(carouselId).empty();
+      if(data === undefined || data.length === 0) {
+        $(".".concat(carouselId.substr(1))).empty();
+        $(carouselId).remove();
+        return false;
+      }
+      data.forEach((test, index) => {
+        $(carouselId).append(`
+        <div class="carousel-item l4 card testcard z-depth-5" style="width: auto"><div class="card-content grey-text text-darken-3"><a href="/quiz/${test.id}/detail"><span class="card-title grey-text text-darken-4">${test.name}</span></a><br>by <a href="/user/${test.owner_username}" class="grey-text text-darken-4">${test.owner}</a><br>Attempts: ${test.attempts}<br>Average Rating: ${test.rating}<br>Created on: ${test.date_created}</div></div>
+        `)
+      });
+      $(carouselId).carousel({
+        dist:-30,
+        shift:20,
+        padding:50,
+      });
+    }
+    function errorCarousel(carouselId) {
+      new PNotify({
+        text: "Error! Please reload the page",
+        type:"error",
+      });
+    }
+  });
+</script>
+{% endblock scripts %}

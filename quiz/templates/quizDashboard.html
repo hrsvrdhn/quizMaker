@@ -1,0 +1,264 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+<div id="modal1" class="modal">
+	<div class="modal-content" style="padding:0%">
+		<nav class="website-theme">
+			<div class="nav-wrapper">
+				<div class="left col s8 m5 l5">
+					<ul>
+					<li><a href="#!" class="email-type">Feedback</a></li>
+					</ul>
+				</div>
+				<div class="col s4 m7 l7">
+					<ul class="right">
+						{% if not feedback %}
+						<li><a href="#!" class="giveFeedback"><i class="modal-action modal-close material-icons">send</i></a></li>
+						{% endif %}  
+						<li><a href="#!"><i class="modal-action modal-close material-icons">clear</i></a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div class="row">
+			<div class="col s10 l8 offset-s1 offset-l2">
+				<p class="range-field">
+					<input type="range" id="rating" min="0" max="5" {% if feedback %} value="{{ feedback }}" disabled {% endif %}/>
+				</p>
+				<p class="feedbackMessage center">{% if feedback %}Thanks for your response !{% else %}Share your experience and help us to improve{% endif %}</p>
+			</div>
+		</div>
+	</div>
+</div>
+<div>
+	<div class="row">
+		<div class="col l1 hide-on-med-and-down">
+		  <ul id="questionButtons" class="collection" style="display: block; overflow-y: scroll; height: 100vh;">
+				<!-- To be filled by buttons -->
+				{% for i in no_of_questions %}
+				<li class="collection-item"><a class="questionButton btn-floating btn waves-effect waves-light red" data-no="{{i}}">{{ i|add:"1" }}</a></li>
+				{% endfor %}
+		  </ul>
+		</div>
+		<div class="col s12 l9 offset-l1" style="margin-top: 3rem">
+			<div class="row">
+				{% if has_completed %}
+					<div class="col left">
+						<button type="button" class="btn waves-effect waves-light red">Score:{{ score }}</button>
+					</div>
+				{% endif %}
+				<div class="col right">
+					{% if has_completed %}
+					<button type="button" data-target="modal1" class="btn waves-effect waves-light blue modal-trigger">Give feedback</a>
+					{% else %}
+					<form id="endQuizForm" method="POST" data-tno="{{ testno }}" action="{% url 'quiz:endQuiz' pk=testno %}">
+						{% csrf_token %}
+						<button type="button" class="btn waves-effect waves-light red endQuizButton">End Quiz</a>
+					</form>
+					{% endif %}
+				</div>
+			</div>
+			<div class="row">
+				<div class="container">
+					<div class="card-panel z-depth-4" style="">
+						<div class="progress">
+							<div class="indeterminate"></div>
+						</div>
+						<div class="mainContent">			  
+		        		<p id="questionData">I am a very simple card. I am good at containing small bits of information.
+    					  I am convenient because I require little markup to use effectively.</p>
+						<form id="submitResponse" action="POST" data-url="" data-qno="">
+    					<div style="margin-top: 2rem">
+      			    	<p>
+						<input name="option" type="radio" id="option1" value="Red"/>
+							<label for="option1">Red</label>
+						</p>
+						<p>
+						<input name="option" type="radio" id="option2" value="Green"/>
+						<label for="option2">Green</label>
+						</p>
+						<p>
+						<input name="option" type="radio" id="option3" value="Blue"/>
+						<label for="option3">Blue</label>
+						</p>
+						<p>
+							<input name="option" type="radio" id="option4" value="Yellow"/>
+							<label for="option4">Yellow</label>
+							</p>
+						</div>
+							<div style="margin-top: 2rem;">
+								<div class="center">
+									<a class="changeQuestion btn btn-floating waves-effect waves-light red left z-depth-4" data-direction="-1">&laquo;</a>
+									<button type="submit" class="btn waves-effect waves-light red z-depth-4">Submit</button>
+									<a class="changeQuestion btn btn-floating waves-effect waves-light red right z-depth-4" data-direction="1">&raquo;</a>
+								</div>
+							</div>
+						</form>
+					</div>
+			    </div>
+        </div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
+{% block scripts %}
+<script>
+	var questions = null;
+	$(document).ready(function() {
+		$(".progress").hide();
+		$('.modal').modal();
+		var quill = new Quill('#questionData', {
+			readOnly: true,
+			"modules": {
+      			"toolbar": false
+  			},
+			"theme": "snow",
+		});
+		$.ajax({
+			method: 'GET',
+			url: "{% url 'quiz:getQuestions' pk=testno %}",
+			success: handleFormSuccess,
+			error: handleFormError,
+		});
+		{% if has_completed %}
+		$(".giveFeedback").click(function(evt){
+			evt.preventDefault();
+			var rating_val = $("#rating").val();
+			if(rating_val < 0 || rating_val > 5) {
+				return false;
+			}
+			$.ajax({
+				method: 'POST',
+				url: "{% url 'quiz:testfeedback' pk=testno %}",
+				data: {'rating': rating_val},
+				success: function(data, textStatus, jqXHR) {
+					$(".giveFeedback").remove();
+					$("#rating").prop("disabled", true);
+					$(".feedbackMessage").html("Thanks for your response !");
+					$("#modal1").modal('close');
+					new PNotify({
+						text:"Feedback submitted",
+						type:"success"
+					});
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					new PNotify({
+						text:"Error",
+						type:"error"
+					});
+				}
+			});
+		});
+		{% endif %}
+		$(".endQuizButton").click(function(evt) {
+			evt.preventDefault();
+			new PNotify({
+				title: 'Confirmation Needed',
+				text: 'Are you sure you want to end the test?',
+				icon: 'glyphicon glyphicon-question-sign',
+				type: 'info',
+				hide: false,
+				confirm: {
+					confirm: true
+				},
+				buttons: {
+					closer: false,
+					sticker: false
+				},
+				history: {
+					history: false
+				},
+				}).get().on('pnotify.confirm', function(){
+					$("#endQuizForm").submit();
+				}).on('pnotify.cancel', function(){
+				});
+		})
+		$("#submitResponse").submit(function(evt){
+			evt.preventDefault();
+			var $formData = $(this).serialize();
+			var $thisURL = $(this).attr('data-url');
+			$.ajax({
+					method: 'POST',
+					url: $thisURL,
+					data: $formData,
+					success: function(data, textStatus, jqXHR) {
+						new PNotify({
+				    	title: 'response Submitted!',
+				    	type: 'info'
+						});
+					},
+					error: handleFormError,
+				});
+		})
+		function handleFormSuccess(data, textStatus, jqXHR) {
+			questions = data;
+			loadQuestion(0);
+		}
+		$(".changeQuestion").click(function(evt) {
+			evt.preventDefault();
+			var nextQuestion = parseInt($("#submitResponse").attr("data-qno")) + parseInt($(this).attr("data-direction"));
+			loadQuestion((questions.length+nextQuestion) % questions.length);
+		});
+		$(".questionButton").click(function(evt) {
+			evt.preventDefault();
+			loadQuestion(parseInt($(this).attr("data-no")));
+		})
+		function loadQuestion(qno) {
+			$(".progress").show(200);
+			$(".mainContent").css("filter","blur(2px)");
+			$(".ql-editor").html(`${qno+1}. ${questions[qno].question}`);
+			$("#option1").val(questions[qno].option1).prop('checked', false);
+			$("#option2").val(questions[qno].option2).prop('checked', false);
+			$("#option3").val(questions[qno].option3).prop('checked', false);
+			$("#option4").val(questions[qno].option4).prop('checked', false);
+			$("label[for='option1']").html(questions[qno].option1).parent().css('background-color', 'white');
+			$("label[for='option2']").html(questions[qno].option2).parent().css('background-color', 'white');;			
+			$("label[for='option3']").html(questions[qno].option3).parent().css('background-color', 'white');;			
+			$("label[for='option4']").html(questions[qno].option4).parent().css('background-color', 'white');;
+			$("#submitResponse").attr("data-url", `/quiz/ajax/${questions[qno].update_url.split("/").pop()}/response`).attr("data-qno", qno);
+			$.ajax({
+				method: 'GET',
+				url: `/quiz/ajax/${questions[qno].update_url.split("/").pop()}/response`,
+				success: function(data, textStatus, jqXHR) {
+					if(data !== undefined) {
+				     for(var i=1;i<=4;i++) {
+						 if($("#option"+i).val() === data.response) {
+							$("#option"+i).prop("checked", true);
+							break;
+						 }
+					 }
+					//  $(`input[value='${data.response}']`).prop("checked", true);
+					}
+					if(data.correct_answer != null) {
+						for(var i=1;i<=4;i++) {
+							 if($("#option"+i).val() === data.response) {
+								$("#option"+i).parent().css('background-color', '#e25045');
+							 }
+							 if($("#option"+i).val() === data.correct_answer) {
+								$("#option"+i).parent().css('background-color', '#91ff91');
+							 }
+					 	}
+						// $(`input[value='${data.response}']`).parent().css('background-color', '#e25045');
+						// $(`input[value='${data.correct_answer}']`).parent().css('background-color', '#91ff91');						
+					}
+					$(".progress").hide(500);
+					$(".mainContent").css("filter","blur(0px)");
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					new PNotify({
+						type:"error",
+						title:'Error! Reload the page'
+					});
+				},
+			})
+		}
+		function handleFormError(jqXHR, textStatus, errorThrown) {
+			new PNotify({
+		    title: 'Oops! Reload Again',
+				type: 'error'
+			});
+		}
+	});
+</script>
+{% endblock scripts %}

@@ -1,0 +1,342 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+<!-- MODAL STARTS  -->
+<div id="modal1" class="modal modal-fixed-footer">
+  <form class="ajax-question-form" action="." data-url="{% url 'quiz:addQuestionForm' pk=test.pk %}" data-method="POST">
+  	<div class="modal-content">
+    	<h4 id="modal-title">Add Question</h4>
+    	<div class="input_field">
+    		{%csrf_token%}
+    		{{ qform.as_p }}
+    	</div>
+	</div>
+  	<div class="modal-footer">
+    	<button id="modal-close" type="button" class="modal-action modal-close waves-effect waves-green btn" data-dismiss="modal">Close</button>
+    	<button type="submit" id="questionSaveButton" class="waves-effect waves-green btn">Add</button>
+  	</div>
+  </form>
+</div>
+<!-- MODAL ENDS -->
+<div style="margin: 2%">
+<!-- TEST DETAIL STARTS -->
+	<div class="card" style="padding: 1%">
+		<div class="row">
+			<div class="col s12 l6">
+				<div class="card detailcard" style="padding: 1%">
+					<label for="id_name" class="active">Name:</label><input type="text" name="name" value="{{test.name}}" maxlength="500" id="id_name">
+					<label for="id_date" class="active">Added On:</label><input type="text" name="date" value="{{test.created_on|date}}" id="id_date">
+				</div>
+			</div>
+			<div class="col s12 l5 right">
+				<div style="padding: 2%" class="right">
+					<button data-url="{% url 'quiz:togglepublish' pk=test.pk %}" class="btn togglepublish" {% if test.publish %}disabled{% endif %}>
+						<i class="material-icons left">visibility</i>Publish Test
+					</button>
+					<button class="btn btn-toggleactive" {% if not test.publish %}disabled{% endif %}>
+						<div class="switch">
+							Active
+							<label>
+								<input class="toggleactive" type="checkbox" {% if test.is_active %}checked{% endif %}>
+								<span class="lever"></span>
+							</label>
+						</div>
+					</button>
+				</div>
+			</div>
+			<div class="col s12 l6">
+				<div class="card topiccard" style="padding: 1%">			
+					<label class="active">Topic</label>
+					<div class="chips tooltipped"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+<!-- TEST DETAIL ENDS -->
+<div class="card" style="padding: 1%">		
+<div class="row">
+	<div class="col s12 l12" style="padding: 1%">
+		<span class="left">
+			<h5>Questions</h5>
+		</span>
+		<span class="right">
+			<a id="add-new-question" class="waves-effect waves-light btn-floating red center" href="#" onclick="$('#modal1').modal('open');" {% if test.publish %}disabled{% endif %}><i class="material-icons">note_add</i></a>					
+		</span> 
+	</div>
+</div>
+<div id="questionList" class="row">
+	<!-- to be filled with questions -->
+</div>
+</div>
+{% endblock content %}
+{% block scripts %}
+<script>
+	$(document).ready(function() {
+		$(".detailcard,.topiccard").hover(function() {
+      		$(this).toggleClass('z-depth-4');
+		});
+		$("#questionList").on('mouseenter', '.questioncard', function() {
+			$(this).toggleClass('z-depth-4');
+		});
+		$("#questionList").on('mouseleave', '.questioncard', function() {
+			$(this).toggleClass('z-depth-4');
+		});
+		$('.tooltipped').tooltip({delay: 50, tooltip: "Only alphabets and digits, invalid topic name will not be saved", position: 'top'});
+		$('.chips').material_chip({
+			autocompleteOptions: {
+                data: {
+                    {% for topic in all_topics %}
+                        "{{ topic }}": null,
+                    {% endfor %}
+                },
+                limit: Infinity,
+                minLength: 1
+			},
+			data: [
+				{% for topic in test.topics.all %}		
+					{ tag: "{{ topic }}"},
+				{% endfor %}
+			],
+		});
+		$('.chips').on('chip.add', function(e, chip){
+			if(/^[a-zA-Z0-9]+$/.test(chip.tag) === false) {
+				new PNotify({
+					title: 'Invalid Topic',
+					type: 'error'
+				});
+				return;
+			} 
+			var $url = "{% url 'quiz:addtopic' pk=test.pk %}";
+			var $formdata = {'name': chip.tag};
+			console.log($url, $formdata);
+			$.ajax({
+				method: 'POST',
+				url: $url, 
+				data: $formdata,
+				success: function(data, textStatus, jqXHR) {
+					new PNotify({
+						title: 'Topic added',
+						type: 'success'
+					});
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					$(`.chip:contains('"${chip.tag}"<i class="material-icons close">close</i>')`).remove()
+					new PNotify({
+						title: 'Oops! Reload Again',
+						type: 'error'
+					});
+				}
+			})
+		});
+		$('.chips').on('chip.delete', function(e, chip){
+			var $url = "{% url 'quiz:deletetopic' pk=test.pk %}";
+			var $formdata = {'name': chip.tag};
+			$.ajax({
+				method: 'DELETE',
+				url: $url,
+				data: $formdata,
+				success: function(data, textStatus, jqXHR) {
+					new PNotify({
+						title: 'Topic removed',
+						type: 'success'
+					});
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					new PNotify({
+						title: 'Oops! Reload Again',
+						type: 'error'
+					});
+				}
+			})
+		});
+		(function () {
+			$("#id_question").parent().append('<div id="quill-editor"></div>');
+			$("#id_question").prop('hidden', true).prop("required", false);
+			var quill = new Quill('#quill-editor', {
+				modules: {
+					toolbar: [
+						['bold', 'italic', 'underline'],
+						['link', 'blockquote', 'code-block',],
+						[{ list: 'ordered' }, { list: 'bullet' }]
+					]
+				},
+				placeholder: 'Write Question...',
+				theme: 'snow',
+			});
+		})();
+		$('.modal').modal();
+		var ispublished = "True" === "{{ test.publish }}";
+		$.ajax({
+			method: 'GET',
+			url: "{% url 'quiz:getQuestions' pk=test.pk %}",
+			success: handleFormSuccess,
+			error: handleFormError
+		});
+		$(".togglepublish").click(function(event){
+			if($("#questionList").is(":empty")) {
+				new PNotify({
+					title: 'Empty test!',
+					text: 'No one likes a empty test. Please add some questions.',
+					type: 'error',
+				});
+				return false;
+			}
+			event.preventDefault();
+			var $url = $(this).attr("data-url");
+			new PNotify({
+				title: 'Publish Test',
+				text: 'Are you sure? Questions and test name cannot be modified once published.',
+				icon: 'glyphicon glyphicon-question-sign',
+				type: 'info',
+				hide: false,
+				confirm: {
+					confirm: true
+				},
+				buttons: {
+					closer: false,
+					sticker: false
+				},
+				history: {
+					history: false
+				},
+				}).get().on('pnotify.confirm', function(){
+					$.ajax({
+						method: 'PUT',
+						url: $url,
+						success: function(data, textStatus, jqXHR) {
+							if(data.published === true) {
+								$('.togglepublish').prop('disabled', true);
+								$('.btn-toggleactive').prop('disabled', false);
+							}
+							new PNotify({
+								title:'Test Published',
+								type: 'success'
+							});
+							window.location.reload();
+						},
+						error: function(jqXHR, textStatus, errorThrown) {
+							new PNotify({
+								title:'Error!',
+								type: 'error',
+								text: jqXHR.responseJSON['message'],
+							});
+						}
+					});
+				}).on('pnotify.cancel', function(){
+			});
+		});
+		$(".toggleactive").click(function(e) {
+			$.ajax({
+				method: 'PUT',
+				url: "{% url 'quiz:toggleactive' pk=test.pk %}",
+				success: function(data, textStatus, jqXHR) {
+					console.log(data);
+					new PNotify({
+						title:'Done!',
+						type: 'success'
+					});
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					$(".toggleactive").prop('checked', !$(".toggleactive").prop('checked'));
+					new PNotify({
+						title:'Operation Failed!',
+						type: 'error'
+					});
+				}
+			});
+		});
+		$('#add-new-question').click(function(event) {
+				console.log("Add Question");
+				$('.ajax-question-form').trigger("reset");
+				$(".ql-editor").empty();
+				$("#modal-title").html("Add Question");
+				$("#questionSaveButton").html("Add Question");
+				$('.ajax-question-form').attr('data-url',"{% url 'quiz:addQuestionForm' pk=test.pk %}");
+				$('.ajax-question-form').attr('data-method','POST');
+		});
+		$("#questionList").on('click', '.updateQuestion', function(event) {
+			event.preventDefault();
+			console.log("Update Question");	
+			var $thisURL = $(this).attr('data-url');
+			$.ajax({
+				method: 'GET',
+				url: $thisURL,
+				success: function(data, textStatus, jqXHR) {
+					console.log(data);
+					$('#modal1').modal('open');
+					$(".ql-editor").html(data.question);
+					$("#id_wrong_answer_1").val(data.wrong_answer_1);
+					$("#id_wrong_answer_2").val(data.wrong_answer_2);
+					$("#id_wrong_answer_3").val(data.wrong_answer_3);
+					$("#id_correct_answer").val(data.correct_answer);
+					$('.ajax-question-form').attr('data-url',$thisURL);
+					$('.ajax-question-form').attr('data-method','PUT');
+					$("#modal-title").html("Edit Question");
+					$("#questionSaveButton").prop("disabled", ispublished).html("Edit Question");
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log(errorThrown);
+				}
+			});
+		});
+		$('.ajax-question-form').submit(function(event) {
+			event.preventDefault();
+			$("#id_question").val($(".ql-editor").html());		
+			var $formData = $(this).serialize();
+			var $methodType = $('.ajax-question-form').attr('data-method');
+			var $thisURL = $('.ajax-question-form').attr('data-url');
+			console.log($formData);
+			$.ajax({
+				method: $methodType,
+				url: $thisURL,
+				data: $formData,
+				success: handleFormSuccess,
+				error: handleFormError,
+			});
+		});
+		$("#questionList").on('submit','.deleteQuestion', function(event) {
+			event.preventDefault();
+			var $thisURL = $(this).attr('data-url');
+			console.log($thisURL);
+			$.ajax({
+				method: 'DELETE',
+				url: $thisURL,
+				success: handleFormSuccess,
+				error: handleFormError,
+			});
+		});
+		function handleFormSuccess(data, textStatus, jqXHR) {
+			new PNotify({
+				title: 'Success!',
+				type: 'success'
+			});
+			console.log(data);
+			$('.ajax-question-form').trigger("reset");
+			$('#modal-close').click();
+			refreshQuestionList(data);
+		}
+		function handleFormError(jqXHR, textStatus, errorThrown) {
+			new PNotify({
+				title: 'Oops!',
+				type: 'error'
+			});
+			console.log(errorThrown);
+		}
+		function refreshQuestionList(data) {
+			$("#questionList").empty();
+			data.forEach(function(question, index) {
+				var content = `<div class="card horizontal z-depth-2 questioncard" style="padding:1%"><div class="col s12 l12"><span class="left">${question.question}</span>`; 
+				
+				if($(".togglepublish").prop("disabled") === false) {
+					content += `<form class="deleteQuestion" data-url="${question.update_url}"><button type="submit" class="btn-floating waves-effect red right z-depth-3" style="margin-left:1%"><i class="material-icons">delete_forever</i></button></form>`;
+				}
+				content += `<a class="btn-floating waves-effect red right z-depth-3 updateQuestion" data-url="${question.update_url}" style="margin-left:1%" ><i class="material-icons">mode_edit</i></a></div></div>`;
+				$("#questionList").append(content);
+			});
+		}
+	})
+</script>
+{% endblock scripts %}
+
+
+				  

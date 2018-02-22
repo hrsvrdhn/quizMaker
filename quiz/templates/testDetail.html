@@ -1,0 +1,99 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+<div style="margin: 2rem">
+    <div class="row">
+        <div class="card col s12 l12">
+            <div class="card-content">
+                <div class="row">
+                    <div class="col s8 l4 offset-s2">
+                        <h3 class="card-title grey-text text-darken-4" style="font-size:2.2rem">{{ test.name }}</h3>
+                        <span class=" grey-text text-darken-2">by <a href="{% url 'user:profile' username=test.owner.user.user.username %}" style="color:inherit">{{ test.owner.user.extra_data.name }}</a></span>
+                    </div>
+                    <div class="col s6 l2 center-align">
+                        <h4 class="card-title grey-text text-darken-4">{{ test.get_attempts }}</h4>
+                        <span class=" grey-text text-darken-2">Total Submissions</span>                        
+                    </div>
+                    <div class="col s6 l2 center-align">
+                        <h4 class="card-title grey-text text-darken-4">{{ test.get_average_rating|default:'N/A' }}</h4>
+                        <span class=" grey-text text-darken-2">Average Rating</span>                        
+                    </div>
+                    <div class="col s6 l2 center-align">
+                        <h4 class="card-title grey-text text-darken-4">{{ test.get_question_count }}</h4>
+                        <span class=" grey-text text-darken-2">Number of Questions</span>                        
+                    </div>
+                    <div class="col s6 l2 center-align">
+                        <h4 class="card-title grey-text text-darken-4">{{ test.created_on|date }}</h4>
+                        <span class=" grey-text text-darken-2">Published Date</span>                        
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 l12">
+                        Tags :
+                        {% for topic in test.topics.all %}
+                        <div class="chip">{{ topic.name }}</div>
+                        {% empty %}
+                        No tags
+                        {% endfor %}    
+                    </div>
+                </div>
+                </div>
+                <div class="card-action">
+                    <div class="row">
+                    <div class="col s4 left">
+                        {% url 'quiz:testDetail' pk=test.pk as share_like_url %}
+                        <iframe src="https://www.facebook.com/plugins/like.php?href=http://localhost:8000/{{ share_like_url | urlencode }}&width=154&layout=button_count&action=like&size=large&show_faces=true&share=true&height=46&appId=323599101479324" width="154" height="33" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
+                    </div>
+                    <div class="col s2 right">
+                        <a href="{% url 'quiz:takeQuiz' pk=test.pk %}" class="btn right">
+                        {% if user_teststat %}
+                        {% if user_teststat.has_completed %}
+                            Result
+                        {% else %}
+                            Continue                    
+                        {% endif %}
+                        {% else %}
+                            Take Quiz                                        
+                        {% endif %}
+                        </a>
+                    </div>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 l5 card right">
+                <div class="card-content">
+                    <div class="card-title"><i class="material-icons yellow-text circle left">star</i>Leaderboard</div>
+                    <table id="leaderboardTable" class="responsive-table">
+                        {% if teststats %}
+                        <thead>
+                            <tr>
+                                <td>Rank</td>
+                                <td>Name</td>
+                                <td>Score</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for teststat in teststats %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ teststat.candidate.user.extra_data.name }}</td>
+                                <td>{{ teststat.score }}</td>                            
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        {% else %}
+                        <p class="center">Be the first one to take it!</p>
+                        {% endif %}
+                </table>           
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+<script>
+</script>
+{% endblock scripts %}

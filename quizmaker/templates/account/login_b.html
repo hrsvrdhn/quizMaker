@@ -1,0 +1,17 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+<div class="text-center">
+  <br>
+<div class="card text-center text-white bg-info mb-3" style="width: 22rem;">
+  <div class="card-body">
+    <div class="card-header mb-3"><h3>QuizMaker</h3></div>
+    <h5 class="h5 mb-3 font-weight-normal">Please Log In</h5>
+    <br>
+    <a href="/accounts/google/login" class="btn btn-danger">Google <img src="https://cdnjs.cloudflare.com/ajax/libs/webicons/2.0.0/webicons/webicon-googleplus.png"> </a>
+    <a href="/accounts/facebook/login" class="btn btn-danger">Facebook <img src="https://cdnjs.cloudflare.com/ajax/libs/webicons/2.0.0/webicons/webicon-facebook.png"> </a>
+    <p class="mt-5 mb-3">&copy; 2017-2018</p>
+  </div>
+</div>
+</div>
+{% endblock content %}

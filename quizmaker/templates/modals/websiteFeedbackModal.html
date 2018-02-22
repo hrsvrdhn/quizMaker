@@ -1,0 +1,37 @@
+{% load settings_tag %}
+<div id="websiteFeedbackModal" class="modal">
+        <div class="modal-content" style="padding:0%">
+            <nav class="website-theme">
+                <div class="nav-wrapper">
+                    <div class="col s12 m12 l12">
+                        <a href="#!" class="left" style="padding-top:1%"><h5>Give your feedback</h5></a>
+                        <a href="#!" class="right"><i class="modal-action modal-close material-icons">clear</i></a>
+                    </div>
+                </div>
+            </nav>
+            <div class="progress">
+                    <div class="indeterminate"></div>
+            </div>
+            <div class="container grey-text text-darken-4">
+                <form class="feedbackForm" data-url="{% url 'user:websiteFeedback' %}">
+                    <div class="row">
+                        <div class="col s12 l12">
+                            <div class="input-field">
+                                <input type="text" name="name" placeholder="Your Name" required>
+                                <input type="email" name="email" class="validate" placeholder="Your Email" required>
+                                <textarea name="description" class="materialize-textarea" placeholder="Description" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12 l7">
+                            <div class="g-recaptcha" data-sitekey="{% reCaptchaSiteKey %}"></div>
+                        </div>
+                        <div class="col s12 l5" style="padding-top:3%">
+                            <button type="submit" class="feedbackSubmitButton btn waves-effect waves-light z-depth-3 right">Submit</button>
+                        </div>
+                    </div>
+                </form>                        
+            </div>
+        </div>
+    </div>

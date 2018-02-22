@@ -1,0 +1,112 @@
+{% extends 'account/base.html' %}
+{% block styles %}
+<style>
+  .testcard {
+    color:#2e3d49;
+    text-decoration-color: #2e3d49;
+  }
+</style>
+{% endblock styles %}
+{% block content %}
+
+<!-- ADD TEST MODAL STARTS -->
+<div id="addTestModal" class="modal modal-fixed-footer">
+  <form method="POST" class="ajax-test-form" action="." data-url="{% url 'quiz:addTestForm' %}">
+    <div class="modal-content">
+      <h4 id="modal-title" id="exampleModalLongTitle">Add Test</h4>
+      <div class="input_field">
+        {%csrf_token%}
+        {{ testForm.as_p }}
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="modal-close" type="button" class="modal-action modal-close waves-effect waves-green btn" data-dismiss="modal">Close</button>
+      <button type="submit" id="testSaveButton" class="waves-effect waves-green btn">Add Test</button>
+    </div>
+  </form>
+</div>
+<!-- ADD TEST MODAL ENDS -->
+
+<!-- MAIN CONTENT STARTS -->
+<div style="margin: 2%">
+  <div class="row">
+    <div class="col s2 l1 right">
+      <a id="add-new-question" class="waves-effect waves-light btn-floating blue z-depth-3" href="#" onclick="$('#addTestModal').modal('open');"><i class="material-icons" style="vertical-align: middle">playlist_add</i>Add Test</a>
+    </div>
+  </div>
+  <div class="row">
+    {% for test in tests %}        
+      <div class="col s12 m6 l4">
+        <div class="card testcard z-depth-5">
+          <div class="card-content">
+            <span class="card-title">
+              <b>{{ test.name }}</b>
+              <a href="{{test.get_absolute_url}}" class="btn-floating btn-small right red" style="margin-left:1%">
+                  <i class="material-icons" style="vertical-align: middle">settings</i>
+              </a>
+            </span>
+            Total Attempts: {{ test.get_attempts }}<br>
+            Average Rating: {{ test.get_average_rating }}<br>
+            Created on: {{ test.created_on }}
+            <a class="activator right white-text">See Topics({{ test.topics.all|length }})<i class="material-icons" style="vertical-align: middle">eject</i></a>
+          </div>
+          <div class="card-reveal">
+            <span class="card-title grey-text text-darken-4">Topics<i class="material-icons right">close</i></span>
+            <hr>
+            {% for topic in  test.topics.all %}
+              <div class="chip">{{ topic.name }}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+<!-- MAIN CONTENT ENDS -->
+
+{% endblock content %}
+{% block scripts %}
+<script>
+  $(document).ready(function() {
+    $('.modal').modal();
+    $(".testcard").hover(function() {
+      $(this).toggleClass('z-depth-5');      
+      $(this).toggleClass('z-depth-3');
+    });
+    $('.ajax-test-form').submit(function(event) {
+      event.preventDefault();       
+      var $formData = $(this).serialize();
+      var $thisURL = $('.ajax-test-form').attr('data-url');
+      console.log("Its working", $formData, $thisURL);
+      $.ajax({
+        method: 'POST',
+        url: $thisURL,
+        data: $formData,
+        success: handleFormSuccess,
+        error: handleFormError,
+      });
+    });
+    function handleFormSuccess(data, textStatus, jqXHR) {
+      new PNotify({
+          title: 'Success!',
+          type: 'success'
+      });
+      console.log(data);
+      console.log(textStatus);
+      console.log(jqXHR);
+      $('.ajax-question-form').trigger("reset");
+      $('#modal-close').click();
+      window.location.reload();
+    }
+    function handleFormError(jqXHR, textStatus, errorThrown) {
+      new PNotify({
+          title: 'Oops!',
+          type: 'error'
+      });
+          console.log(jqXHR)
+          console.log(textStatus)
+          console.log(errorThrown)
+    }
+  })  
+</script>
+{% endblock scripts %}

@@ -1,0 +1,176 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>QuizMaker | {{ user_context.pageTitle }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" media="all" type="text/css" href="{% static 'css/pnotify.custom.min.css' %}"/>
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.5/quill.snow.css">
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+    <style>
+      body {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+      #quill-editor strong{
+      	font-weight:bold;
+      }
+      main {
+        flex: 1 0 auto;
+      }
+      .navbarbutton {
+        background-color: #02ccba;
+        font-size: 0.8rem;
+      }
+      .website-theme {
+        background-color: #9575cd;
+      }
+      .btn {
+        border-radius: 4%;
+      }
+      .btn-floating {
+        border-radius: 50%;
+      }
+    </style>
+    {% block styles %}
+    {% endblock styles %}
+  </head>
+  <body>
+    <header>
+    <nav class="website-theme">
+      <div class="nav-wrapper" style="margin-left:1rem;margin-right:1rem">
+        <a href="/" class="brand-logo">QuizMaker</a>
+        <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+        <ul class="right hide-on-med-and-down">
+          <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="{% url 'quiz:mytest' %}">My Test<i class="material-icons left">receipt</i></a></li>
+          <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="{% url 'user:myprofile' %}">My Profile <i class="material-icons left">account_box</i></a></li>
+          <li>
+            {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'account_logout' %}">
+              {% csrf_token %}
+              <a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="#" onclick="this.parentNode.submit(); return false;">Logout<i class="material-icons left">input</i></a>
+            </form>
+            {% else %}
+            <a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="{% url 'account_login' %}">Login<i class="material-icons left">input</i></a>
+            {% endif %}
+          </li>
+        </ul>
+        <ul class="side-nav center" id="mobile-demo">
+          <li><div class="user-view" style="background-color:#9575cd">
+              <a href="{% url 'user:myprofile' %}">
+                {% if user_context.profile_pic %}
+                <img class="circle" style="margin:auto" src="{{ user_context.profile_pic }}">
+                {% else %}
+                <i class="medium material-icons">account_circle</i>
+                {% endif %}
+              </a>
+              <a href="#!name"><span class="name white-text"><h5>Hello,{{ user_context.name|default:"Anonymous" }}</h5></span></a>
+          </div></li>
+          <li><div class="divider"></div></li>
+          <li><a href="{% url 'quiz:mytest' %}">My Test</a></li><hr/>
+          <li><a href="{% url 'user:myprofile' %}">My Profile</a></li><hr/>
+          <li>
+            <form method="post" action="/accounts/logout/">
+              {% csrf_token %}
+            <button type="submit" class="waves-effect waves-light btn-flat" href="/accounts/logout"><span style="text-transform: none"><b>Logout</b></span></button>
+            </form>
+          </li><hr/>  
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+    {% block content %}
+    {% endblock content %} 
+  </main>
+  <footer class="page-footer website-theme">
+  <div class="container">
+    <div class="row">
+      <div class="col l3 s6 hide-on-med-and-down">
+        <h5 class="white-text">QuizMaker</h5>
+        <p class="grey-text text-lighten-4">An interactive way to make and take quizes.</p>
+      </div>
+      <div class="col l3 offset-l2 s6">
+        <h5 class="white-text">Social Links</h5>
+        <ul>
+          <li><a class="grey-text text-lighten-3" href="#!">Facebook</a></li>
+          <li><a class="grey-text text-lighten-3" href="#!">Google +</a></li>
+          <li><a class="grey-text text-lighten-3" href="#!">Twitter</a></li>
+        </ul>
+      </div>
+      <div class="col l3 offset-l1 s6">
+        {% include "modals/websiteFeedbackModal.html" %}      
+        <h5 class="white-text">Suggestions?</h5>
+        <p class="grey-text text-lighten-3">
+          This is YOUR site, so if you have got any suggestions, complaints, feedback on how we can improve if for you, please let us know. We do our best to keep up!.<br>
+        </p>
+        <p>          
+          <a class="white-text" href="#" onclick="$('#websiteFeedbackModal').modal('open');"><strong>Give your feedback</strong></a>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    <div class="container">
+    © 2017 Copyright Text
+    <a class="grey-text text-lighten-4 right" href="#!">Made by <b>Harsh Vardhan Sharma</b></a>
+    </div>
+  </div>
+</footer>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.quilljs.com/1.3.5/quill.js"></script>
+<!-- <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script> -->
+  <script type="text/javascript" src="{% static 'js/django_csrf.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/pnotify.custom.min.js' %}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script>
+    $(document).ready(function() {
+        $(".button-collapse").sideNav();
+    		$(".progress").hide();  
+        $(".modal").modal();
+        $(".feedbackForm").submit(function(evt) {
+          evt.preventDefault();
+          var $formUrl = $(this).attr("data-url");
+          var $formData = $(this).serialize();
+          if($formData === undefined || $formUrl === undefined) {
+            new PNotify({
+              type:"error",
+              text:"Feedback form not valid"
+            });
+            return false;
+          }
+    			$(".progress").show(200);      
+          $.ajax({
+            method:"POST",
+            url: $formUrl,
+            data: $formData,
+            success: function(data, textStatus, jqXHR){
+              $("#websiteFeedbackModal").modal("close");
+              $(".feedbackForm").trigger("reset");
+              new PNotify ({
+                type:"success",
+                text:"Thank you for your feedback, expect to hear from us in next 48 working hours."
+              });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              new PNotify({
+                type:"error",
+                text:"Server Error"
+              });
+            },
+            complete: function(jqXHR, textStatus) {
+          			$(".progress").hide(500);    
+            }
+          })
+        })
+    });
+  </script>
+  <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+  {% block scripts %}
+  {% endblock scripts %}
+  </body>
+</html>

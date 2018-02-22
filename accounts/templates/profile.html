@@ -1,0 +1,183 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+<div style="margin:1rem">
+<div class="row">
+    <div class="col s12 m12 l12">
+        <div class="card horizontal card-image profilecard z-depth-3 grey-text text-darken-3">
+        <div class="card-image">
+            <img src="{{ profile_pic }}" style="border-radius: 50%; width: 128px; height: 128px; margin:1rem">
+        </div>
+        <div class="card-stacked">
+            <div class="card-content">
+                <div class="row">
+                    <div class="col s8 l4 offset-s2">
+                        <h3 class="card-title grey-text text-darken-4" style="font-size:2.2rem">{{ name }}</h3>
+                    </div>
+                    <div class="col s6 l2 center-align">
+                            <h4 class="card-title grey-text text-darken-4">{{ test.get_attempts }}</h4>
+                            <span class=" grey-text text-darken-2">Total Submissions</span>                        
+                    </div>
+                </div>
+            </div>
+            <div class="card-action">
+                {% if not owner %}<a class="togglefollow" href="#" data-url="{{ get_follow_url }}">{% if following %}Unfollow{% else %}Follow{% endif %}</a>{% endif %}
+                <a class="activator">Favourite Topics <i class="material-icons" style="vertical-align: middle">eject</i></a>
+                <a href="#">{{ total_tests_taken }}</a>
+                <a href="#">{{ accuracy }}</a>                
+            </div>
+        </div>
+        <div class="card-reveal">
+                <span class="card-title grey-text text-darken-4">Favourite Topics<i class="material-icons right">close</i></span>
+                {% if is_owner %}
+                    <div class="chips chips-autocomplete tooltipped"></div>
+                {% else %}
+                    {% if not topics %}
+                        No Favourites
+                    {% endif %}
+                    {% for topic in topics %}
+                        <div class="chip">{{ topic }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    {% for teststat in tests_taken %}        
+        <div class="col s12 m4">
+        <a href="{{ teststat.test.get_test_taking_url }}">
+        <div class="card testcard z-depth-5">
+            <div class="card-content">
+            <span class="card-title grey-text text-darken-3">
+                {{ teststat.test.name }}
+                <span class=" right">
+                    {% if teststat.has_completed %}
+                        <i class="material-icons green-text">done_all</i>
+                    {% else %}
+                        <i class="material-icons red-text">watch_later</i>                
+                    {% endif %}
+                </span>
+            </span>
+                <span class="grey-text text-darken-3">Date Taken: {{ teststat.date_taken|date }}<br>
+                {% if not teststat.score == None %} Score: {{ teststat.score }} {% endif %}<br></span>
+            </div>
+        </div>
+        </a>
+        </div>
+    {% endfor %}
+</div>
+</div>
+{% endblock content %}
+
+{% block scripts %}  
+<script>
+    $(document).ready(function() {
+        $(".profilecard").hover(function() {
+            $(this).toggleClass('z-depth-3');            
+            $(this).toggleClass('z-depth-2');
+        });
+        $(".testcard").hover(function() {
+            $(this).toggleClass('z-depth-5');            
+            $(this).toggleClass('z-depth-3');
+        });
+        {% if not owner %}
+        $(".togglefollow").click(function(e) {
+            e.preventDefault();
+            var $url = $(this).attr("data-url");
+            $.ajax({
+                method:'POST',
+                url: $url,
+                success: function(data, textStatus, jqXHR){
+                    new PNotify({
+                        type:'success',
+                        text: $('.togglefollow').html()+'ed',
+                    })
+                    if(data.is_following === true) {
+                        $('.togglefollow').html("Unfollow");
+                    } else {
+                        $('.togglefollow').html("Follow");                        
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    new PNotify({
+                        type:'error',
+                        text: 'Reload page',
+                    })
+                }
+            })
+        });
+        {% endif %}
+        $('.tooltipped').tooltip({delay: 50, tooltip: "Only alphabets and digits, invalid topic name will not be saved", position: 'top'});
+        {% if is_owner %}
+            $('.chips-autocomplete').material_chip({
+                autocompleteOptions: {
+                data: {
+                    {% for topic in all_topics %}
+                        "{{ topic }}": null,
+                    {% endfor %}
+                },
+                limit: Infinity,
+                minLength: 1
+                },
+                data: [
+                    {% for topic in topics %}
+                        { tag: "{{ topic }}"},
+                    {% endfor %}
+                ],
+            });
+            $('.chips').on('chip.add', function(e, chip){
+                if(/^[a-zA-Z0-9]+$/.test(chip.tag) === false) {
+                    new PNotify({
+                        title: 'Invalid Topic',
+                        type: 'error'
+                    });
+                    return;
+                } 
+                var $url = "{% url 'topic:add' %}";
+                var $formdata = {'name': chip.tag};
+                console.log($url, $formdata);
+                $.ajax({
+                    method: 'POST',
+                    url: $url, 
+                    data: $formdata,
+                    success: function(data, textStatus, jqXHR) {
+                        new PNotify({
+                            title: 'Topic added',
+                            type: 'success'
+                        });
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $(`.chip:contains('"${chip.tag}"<i class="material-icons close">close</i>')`).remove()
+                        new PNotify({
+		                    title: 'Oops! Reload Again',
+				            type: 'error'
+			            });
+                    }
+                })
+            });
+            $('.chips').on('chip.delete', function(e, chip){
+                var $url = "{% url 'topic:delete' %}";
+                var $formdata = {'name': chip.tag};
+                $.ajax({
+                    method: 'DELETE',
+                    url: $url,
+                    data: $formdata,
+                    success: function(data, textStatus, jqXHR) {
+                        new PNotify({
+                            title: 'Topic removed',
+                            type: 'success'
+                        });
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        new PNotify({
+		                    title: 'Oops! Reload Again',
+				            type: 'error'
+			            });
+                    }
+                })
+            });
+        {% endif %}
+    });
+</script>
+{% endblock scripts %}

@@ -1,0 +1,30 @@
+{% extends 'account/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container card-container">
+  <div class="row valign-wrapper">
+    <div class="col l6 s12 offset-l3 valign">
+      <div class="card z-depth-4">
+        <div class="card-content grey-text text-darken-3 center">
+          <span class="card-title">Login</span>
+          <p>An interactive way to make and take quizes.</p>
+        </div>
+        <div class="card-action">
+          <a href="/accounts/google/login" class="btn-large red z-depth-3">Google</a>
+          <a href="/accounts/facebook/login" class="btn-large right blue darken-3 z-depth-3">Facebook</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+      $(".card-container").css("margin-top",($("footer").position().top - $("header").height() - $(".card-container").height())/2);
+      $(".card-container").css("margin-bottom",($("footer").position().top - $("header").height() - $(".card-container").height())/2);
+    });
+</script>
+{% endblock scripts %}
