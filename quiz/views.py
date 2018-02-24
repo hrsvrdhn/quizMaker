@@ -242,7 +242,7 @@ def AddTopic(request, pk):
 		user_profile = get_object_or_404(UserProfile, user__user=request.user)		
 		test = get_object_or_404(Test, pk=pk, owner=user_profile)
 		serializer = TopicSerializer(data=request.data)
-		if serializer.is_valid() and test.topics.all().count() < 10:
+		if serializer.is_valid() and test.topics.count() < 10:
 			if serializer.validated_data['name'].isalnum():
 				topic, created = Topic.objects.get_or_create(name=serializer.validated_data['name'])
 				test.topics.add(topic)
@@ -266,7 +266,7 @@ def ToggleTestPublish(request, pk):
 	if request.user.is_authenticated:
 		user_profile = get_object_or_404(UserProfile, user__user=request.user)
 		test = get_object_or_404(Test, pk=pk, owner=user_profile)
-		if test.questions.all().count() == 0:
+		if test.questions.count() == 0:
 			return Response({'message': "Empty question list"}, status=status.HTTP_400_BAD_REQUEST)
 		test.publish = True
 		test.is_active = True
@@ -357,4 +357,5 @@ def NewTest(request):
 	serializer = TestSerializerForHome(new_tests, many=True)
 	return Response(serializer.data, status=status.HTTP_200_OK)
 	
+
 	

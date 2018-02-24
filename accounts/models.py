@@ -23,20 +23,21 @@ class UserProfileManager(models.Manager):
             pass
         return qs
 
-    def toggle_follow(self, user, to_toggle_user):
-        user_profile = UserProfile.objects.get(user__user=user)
-        if to_toggle_user in user_profile.following.all():
-            user_profile.following.remove(to_toggle_user)
+    def toggle_follow(self, follower, followee):
+        if not isinstance(follower, UserProfile) or not isinstance(followee, UserProfile) or follower == followee:
+            return NotImplementedError
+        if followee in follower.following.all():
+            follower.following.remove(followee)
             added = False
         else:
-            user_profile.following.add(to_toggle_user)
+            follower.following.add(followee)
             added = True
         return added
 
-    def is_following(self, user, target_user):
-        if not isinstance(user, UserProfile) or not isinstance(user, UserProfile):
+    def is_following(self, follower, followee):
+        if not isinstance(follower, UserProfile) or not isinstance(followee, UserProfile):
             return NotImplementedError
-        if target_user in user.following.all():
+        if followee in follower.following.all():
             return True
         return False
 
@@ -50,10 +51,6 @@ class UserProfile(models.Model):
     
     def __str__(self):
         return str(self.user.user.username)
-    
-    def get_following(self):
-        users  = self.following.all() # User.objects.all().exclude(username=self.user.username)
-        return users.exclude(username=self.user.username)
 
     def get_follow_url(self):
         return reverse_lazy("user:follow", kwargs={"username":self.user.user.username})
@@ -72,7 +69,7 @@ class UserProfile(models.Model):
     
     def get_correct_response_count(self):
         if self.teststats.filter(has_completed=True).exists():
-            return self.teststats.filter(has_completed=True).aggregate(Sum('score')).get("score__sum", 0)
+            return self.teststats.filter(has_completed=True).aggregate(Sum('score')).get("score__sum")
         return 0
     
     def get_wrong_response_count(self):
