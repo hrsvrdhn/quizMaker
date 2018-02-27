@@ -14,6 +14,7 @@ from rest_framework import status
 
 from .models import UserProfile, WebFeedback
 from .serializers import WebFeedbackSerializer, TopScorerSerializer, UserFollowingSerializer
+from .utils import following_email
 from topic.models import Topic
 from topic.serializers import TopicSerializer
 from quiz.models import TestStat
@@ -113,6 +114,8 @@ def UserFollowView(request, username):
     if request.user.is_authenticated:
         user_profile = get_object_or_404(UserProfile, user__user=request.user)
         is_following = UserProfile.objects.toggle_follow(user_profile, toggle_user)
+        if is_following:
+            following_email(user_profile.user.extra_data.get("name", None), toggle_user.user.extra_data.get("name", None), toggle_user.user.extra_data.get("email", None))
         return Response({'is_following': is_following} ,status=status.HTTP_200_OK)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 

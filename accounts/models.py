@@ -10,6 +10,7 @@ from allauth.account.signals import user_logged_in
 from allauth.socialaccount.models import SocialAccount
 
 from topic.models import Topic
+from .utils import web_feedback_email
 # Create your models here.
 class UserProfileManager(models.Manager):
     use_for_related_fields = True
@@ -98,34 +99,7 @@ class WebFeedback(models.Model):
         self.name = bleach.clean(self.name)
         self.description = bleach.clean(self.description)        
         super(WebFeedback, self).save(*args, **kwargs)
-        sg = sendgrid.SendGridAPIClient(apikey=getattr(settings, "SENDGRID_API_KEY", ""))
-        mail = {
-            "personalizations": [
-                {
-                    "to": [
-                    {
-                        "email": getattr(settings, "DEFAULT_ADMIN_EMAIL", "no-reply@quizmaker.com"),
-                    },
-                    ],
-                    "subject": "QuizMaker Feedback"
-                }
-            ],
-            "from": {
-                "name": self.name,
-                "email": self.email,
-            },
-            "content": [
-                {
-                    "type": "text/html",
-                    "value": "<p>Name: {}</p><p>Email: {}</p><p>Description: {}</p>".format(self.name, self.email, self.description)
-                }
-            ]
-        }
-        response = sg.client.mail.send.post(request_body=mail)
-        if response.status_code == 202:				
-            print("Email sent to admin")
-        else:
-            print("Error sending email")
+        web_feedback_email(self)
     
 
 # SIGNALS 
