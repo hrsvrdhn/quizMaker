@@ -21,5 +21,6 @@ urlpatterns = [
 	re_path(r'^ajax/(?P<pk>[0-9]+)/feedback$', views.testFeedback, name="testfeedback"),
 	re_path(r'^ajax/test/recommended$', views.RecommendedTest, name="recommended_list"),	
 	re_path(r'^ajax/test/popular$', views.MostPopularTest, name="most_popular"),	
-	re_path(r'^ajax/test/new$', views.NewTest, name="new_test"),			
+	re_path(r'^ajax/test/new$', views.NewTest, name="new_test"),
+	re_path(r'^ajax/test/(?P<pk>[0-9]+)/score_distribution$', views.score_distribution, name="score_distribution"),
 ]	

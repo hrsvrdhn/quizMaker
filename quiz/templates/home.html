@@ -155,7 +155,7 @@
         shift:20,
         padding:50,
         onCycleTo: function(data) {
-          $(".".concat(carouselId.substr(1).concat("Btn"))).html($(data).find(".card-title").html()+ " =>");
+          $(".".concat(carouselId.substr(1).concat("Btn"))).html($(data).find(".card-title").html());
           $(".".concat(carouselId.substr(1).concat("Btn"))).attr("href",($(data).find(".card-title").attr("data-detail")));          
         }
       });

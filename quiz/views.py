@@ -357,5 +357,15 @@ def NewTest(request):
 	serializer = TestSerializerForHome(new_tests, many=True)
 	return Response(serializer.data, status=status.HTTP_200_OK)
 	
-
-	
+@api_view(['GET'])
+def score_distribution(requests, pk):
+	test = get_object_or_404(Test, pk=pk)
+	teststats = TestStat.objects.filter(test=test, has_completed=True)
+	percentage = 0.2
+	data = []
+	data.append(teststats.filter(score__gte=(percentage-0.2)*test.get_question_count(),score__lte=percentage*test.get_question_count()).count())
+	percentage += 0.2
+	while percentage <= 1:
+		data.append(teststats.filter(score__gt=(percentage-0.2)*test.get_question_count(),score__lte=percentage*test.get_question_count()).count())
+		percentage += 0.2
+	return Response({"data": data})
