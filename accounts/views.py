@@ -61,7 +61,7 @@ def myProfile(request):
 
 def Profile(request, username=None):
     profile = get_object_or_404(UserProfile, user__user__username=username)
-    owner = False
+    owner = user_context = False
     try:
         r = requests.get(profile.user.get_avatar_url()).url
     except:
@@ -87,24 +87,14 @@ def Profile(request, username=None):
     else:
         following = False
     context = {
-        # 'name': profile.user.extra_data.get('name', None),
-        # 'email': profile.user.extra_data.get('email', None),
         "profile": profile,
         'owner': owner,
         'profile_pic': r,
-        # 'get_follow_url': profile.get_follow_url,
         'following': following,
         'is_owner': request.user.username == username,
-        # 'topics': profile.topics.all(),
         'all_topics': Topic.objects.exclude(liked_by=profile),
         'tests_taken': tests_taken,
-        # 'total_tests_taken': profile.get_total_tests_taken,
-        # 'questions_attempted_count': profile.get_attempts_count(),
-        # 'correct_reponse_count': profile.get_correct_response_count(),
-        # 'wrong_response_count': profile.get_wrong_response_count(),
-        # 'accuracy': profile.get_accuracy(),
         'user_context': user_context,
-        # 'users_following': profile.following.all()[:5]
     }
     return render(request, 'profile.html', context)
 
