@@ -2,7 +2,8 @@
 
 {% block content %}
 <div style="margin:1rem">
-<div class="row">
+    {% include "modals/userFollowingModal.html" %}
+    <div class="row">
     <div class="col s12 m12 l12">
         <div class="card horizontal card-image profilecard z-depth-3 grey-text text-darken-3">
         <div class="card-image">
@@ -10,24 +11,26 @@
         </div>
         <div class="card-stacked">
             <div class="card-content">
-                <div class="row">
-                    <div class="col s8 l4 offset-s2">
-                        <h3 class="card-title grey-text text-darken-4" style="font-size:2.2rem">{{ name }}</h3>
+            <div class="row">
+                <div class="col s8 l4 offset-s2">
+                        <h3 class="card-title grey-text text-darken-4" style="font-size:2.2rem">{{ profile.user.extra_data.name }}</h3>
                         <span class=" grey-text text-darken-2"></span>                                       
                     </div>
                     <div class="col s6 l2 center-align">
-                        <h3 class="card-title grey-text text-darken-4">{{ total_tests_taken }}</h3>
+                        <h3 class="card-title grey-text text-darken-4">{{ profile.get_total_tests_taken }}</h3>
                         <span class=" grey-text text-darken-2">Tests Taken</span>                        
                     </div>
                     <div class="col s6 l2 center-align">
-                        <h3 class="card-title grey-text text-darken-4">{{ accuracy }}%</h3>
+                        <h3 class="card-title grey-text text-darken-4">{{ profile.get_accuracy }}%</h3>
                         <span class=" grey-text text-darken-2">Accuracy</span>                        
                     </div>
                 </div>
             </div>
             <div class="card-action">
-                {% if not owner %}<a class="togglefollow" href="#" data-url="{{ get_follow_url }}">{% if following %}Unfollow{% else %}Follow{% endif %}</a>{% endif %}
-                <a class="activator">Favourite Topics <i class="material-icons" style="vertical-align: middle">eject</i></a>
+                {% if not owner and request.user.is_authenticated %}
+                <a class="togglefollow btn-flat blue white-text lighten-1 z-depth-1" href="#" data-url="{{ profile.get_follow_url }}" style="margin-right:1%; font-size:0.8rem;">{% if following %}Unfollow{% else %}Follow{% endif %}</a>
+                {% endif %}
+                <button class="btn-flat activator blue white-text lighten-1 z-depth-1" style="margin-right:1%; font-size:0.8rem;">Favourite Topics <i class="material-icons" style="vertical-align: middle">eject</i></button>
             </div>
         </div>
         <div class="card-reveal">
@@ -38,7 +41,7 @@
                     {% if not topics %}
                         No Favourites
                     {% endif %}
-                    {% for topic in topics %}
+                    {% for topic in profile.topics.all %}
                         <div class="chip">{{ topic }}</div>
                     {% endfor %}
                 {% endif %}
@@ -47,28 +50,53 @@
     </div>
 </div>
 <div class="row">
-    {% for teststat in tests_taken %}        
+    <div class="col s12 m3">
+        <div class="collection with-header z-depth-3">
+            <a href="#" class="collection-item grey-text text-darken-4">
+                <h5>Following({{ profile.following.all|length }})
+                    <i class="material-icons right">group_add</i>
+                </h5>
+            </a>
+            {% for following in profile.following.all|slice:":5" %}
+            <a href="{{ following.get_absolute_url }}" class="collection-item">{{ following.user.extra_data.name }}</a>
+            {% empty %}
+            <a href="#" class="collection-item">No followings</a>
+            {% endfor %}
+            {% if profile.following.all %}
+            <a href="#" class="secondary-content collection-item seeAll">See all -></a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col s12 m9">
+        {% for teststat in tests_taken %}        
         <div class="col s12 m4">
-        <a href="{{ teststat.test.get_test_taking_url }}">
-        <div class="card testcard z-depth-5">
-            <div class="card-content">
-            <span class="card-title grey-text text-darken-3">
-                {{ teststat.test.name }}
-                <span class=" right">
-                    {% if teststat.has_completed %}
-                        <i class="material-icons green-text">done_all</i>
-                    {% else %}
-                        <i class="material-icons red-text">watch_later</i>                
-                    {% endif %}
-                </span>
-            </span>
-                <span class="grey-text text-darken-3">Date Taken: {{ teststat.date_taken|date }}<br>
-                {% if not teststat.score == None %} Score: {{ teststat.score }} {% endif %}<br></span>
-            </div>
+            <a href="{{ teststat.test.get_test_detail_url }}">
+                <div class="card testcard z-depth-3">
+                    <div class="card-content">
+                        <span class="card-title grey-text text-darken-3">
+                        {{ teststat.test.name }}
+                        <span class=" right">
+                            {% if teststat.has_completed %}
+                            <i class="material-icons green-text">done_all</i>
+                            {% else %}
+                            <i class="material-icons red-text">watch_later</i>                
+                            {% endif %}
+                        </span>
+                        </span>
+                        <span class="grey-text text-darken-3">
+                            Date Taken: {{ teststat.date_taken|date }}
+                            <br>
+                            {% if not teststat.score == None %}
+                            Score: {{ teststat.score }} 
+                            {% endif %}
+                            <br>
+                        </span>
+                    </div>
+                </div>
+            </a>
         </div>
-        </a>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
 </div>
 </div>
 {% endblock content %}
@@ -76,17 +104,62 @@
 {% block scripts %}  
 <script>
     $(document).ready(function() {
+        $(".modal").modal();
+        $(".followingPgBar").css('display', "block");
+        $(".seeAll").click(function(evt) {
+            evt.preventDefault();
+            $("#userFollowingModal").modal('open');
+            if($(".followingCollection").is(":empty") === false) {
+                return false;
+            }
+            $.ajax({
+                method: 'GET',
+                url: "{% url 'user:followings' username=profile.user.user.username %}",
+                success: function(data, textStatus, jqXHR) {
+                    console.log(data);
+                    if(data.logged_user !== null) {
+                        $(".followingCollection").append(`
+                            <li class="collection-item" style="height:60px">
+                                <a href="${data.logged_user.profile_url}">${data.logged_user.name}</a>
+                            </li>
+                        `);
+                    }
+                    data.follow.forEach((element, index) => {
+                        $(".followingCollection").append(`
+                            <li class="collection-item" style="height:60px">
+                                <a href="${element.profile_url}">${element.name}</a>
+                                <a href="${element.follow_url}" class="btn white-text blue secondary-content" style="font-size:0.8rem">follow</a>
+                            </li>
+                        `);
+                    });
+                    data.unfollow.forEach((element, index) => {
+                        $(".followingCollection").append(`
+                            <li class="collection-item" style="height:60px">
+                                <a href="${element.profile_url}">${element.name}</a>
+                                <a href="${element.follow_url}" class="btn white-text blue secondary-content" style="font-size:0.8rem">Unfollow</a>
+                            </li>
+                        `);
+                    });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    new PNotify({
+                        type:"error",
+                        text:"Error loading following, reload the page"
+                    })
+                }
+            })
+        })
         $(".profilecard").hover(function() {
             $(this).toggleClass('z-depth-3');            
             $(this).toggleClass('z-depth-2');
         });
         $(".testcard").hover(function() {
-            $(this).toggleClass('z-depth-5');            
-            $(this).toggleClass('z-depth-3');
+            $(this).toggleClass('z-depth-3');            
+         $(this).toggleClass('z-depth-2');
         });
         {% if not owner %}
         $(".togglefollow").click(function(e) {
-            e.preventDefault();
+         e.preventDefault();
             var $url = $(this).attr("data-url");
             $.ajax({
                 method:'POST',

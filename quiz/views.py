@@ -287,7 +287,7 @@ def ToggleTestActive(request, pk):
 	return Response(status=status.HTTP_404_NOT_FOUND)
 
 def testDetail(request, pk):
-	test = get_object_or_404(Test, publish=True, pk=pk, is_active=True)
+	test = get_object_or_404(Test, publish=True, pk=pk)
 	teststats = TestStat.objects.filter(test=test, has_completed=True).order_by('-score')
 	context = {
 		'test': test,

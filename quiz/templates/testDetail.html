@@ -45,7 +45,7 @@
                         <iframe src="https://www.facebook.com/plugins/like.php?href=http://qzmaker.herokuapp.com/{{ share_like_url | urlencode }}&width=154&layout=button_count&action=like&size=large&show_faces=true&share=true&height=46&appId=323599101479324" width="154" height="33" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
                     </div>
                     <div class="col s2 right">
-                        <a href="{% url 'quiz:takeQuiz' pk=test.pk %}" class="btn right">
+                        <a href="{% url 'quiz:takeQuiz' pk=test.pk %}" class="btn right"{% if not user_teststat and not test.is_active%}disabled{% endif %}>
                         {% if user_teststat %}
                         {% if user_teststat.has_completed %}
                             Result

@@ -33,6 +33,9 @@ class Test(models.Model):
 
 	def get_absolute_url(self):
 		return reverse('quiz:manageTest', args=[self.id])
+	
+	def get_test_detail_url(self):
+		return reverse('quiz:testDetail', args=[self.id])
 
 	def get_average_rating(self):
 		try:

@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import UserProfile, WebFeedback
-from .serializers import WebFeedbackSerializer, TopScorerSerializer
+from .serializers import WebFeedbackSerializer, TopScorerSerializer, UserFollowingSerializer
 from topic.models import Topic
 from topic.serializers import TopicSerializer
 from quiz.models import TestStat
@@ -61,49 +61,58 @@ def myProfile(request):
 def Profile(request, username=None):
     profile = get_object_or_404(UserProfile, user__user__username=username)
     owner = False
-    r = tests_taken = None
+    try:
+        r = requests.get(profile.user.get_avatar_url()).url
+    except:
+        r = None
+    user_profile_pic_url = None
+    tests_taken = TestStat.objects.filter(candidate=profile)
     if request.user.is_authenticated:
         user_profile = get_object_or_404(UserProfile ,user__user=request.user)
         following = UserProfile.objects.is_following(user_profile, profile)
         if user_profile == profile:
             owner = True
-            tests_taken = TestStat.objects.filter(candidate=user_profile)
+            user_profile_pic_url = r
+        else:
+            try:
+                user_profile_pic_url = requests.get(user_profile.user.get_avatar_url()).url
+            except:
+                pass
+        user_context =  {
+            'name': user_profile.user.extra_data['name'],
+            'profile_pic': user_profile_pic_url,
+            'pageTitle': user_profile.user.extra_data['name'], 
+        }
     else:
         following = False
-    try:
-        r = requests.get(profile.user.get_avatar_url()).url
-    except:
-        pass
-    user_context =  {
-        'name': profile.user.extra_data['name'],
-        'profile_pic': r,
-        'pageTitle': profile.user.extra_data['name'], 
-    }
     context = {
-        'name': profile.user.extra_data.get('name', None),
-        'email': profile.user.extra_data.get('email', None),
+        # 'name': profile.user.extra_data.get('name', None),
+        # 'email': profile.user.extra_data.get('email', None),
+        "profile": profile,
         'owner': owner,
         'profile_pic': r,
-        'get_follow_url': profile.get_follow_url,
+        # 'get_follow_url': profile.get_follow_url,
         'following': following,
         'is_owner': request.user.username == username,
-        'topics': profile.topics.all(),
+        # 'topics': profile.topics.all(),
         'all_topics': Topic.objects.exclude(liked_by=profile),
         'tests_taken': tests_taken,
-        'total_tests_taken': profile.get_total_tests_taken,
-        'questions_attempted_count': profile.get_attempts_count(),
-        'correct_reponse_count': profile.get_correct_response_count(),
-        'wrong_response_count': profile.get_wrong_response_count(),
-        'accuracy': profile.get_accuracy(),
+        # 'total_tests_taken': profile.get_total_tests_taken,
+        # 'questions_attempted_count': profile.get_attempts_count(),
+        # 'correct_reponse_count': profile.get_correct_response_count(),
+        # 'wrong_response_count': profile.get_wrong_response_count(),
+        # 'accuracy': profile.get_accuracy(),
         'user_context': user_context,
+        # 'users_following': profile.following.all()[:5]
     }
     return render(request, 'profile.html', context)
 
 @api_view(['POST'])
 def UserFollowView(request, username):
-    toggle_user = get_object_or_404(UserProfile, user__user__username__iexact=username)
+    toggle_user = get_object_or_404(UserProfile, user__user__username__exact=username)
     if request.user.is_authenticated:
-        is_following = UserProfile.objects.toggle_follow(request.user, toggle_user)
+        user_profile = get_object_or_404(UserProfile, user__user=request.user)
+        is_following = UserProfile.objects.toggle_follow(user_profile, toggle_user)
         return Response({'is_following': is_following} ,status=status.HTTP_200_OK)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -112,3 +121,20 @@ def TopScorers(request):
     users = sorted(UserProfile.objects.filter(teststats__isnull=False).distinct(), key=lambda x:x.get_correct_response_count(), reverse=True)[:3]
     serializer = TopScorerSerializer(users, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def UserFollowing(request, username):
+    user_following = UserProfile.objects.none()
+    logged_user = None
+    profile_following = get_object_or_404(UserProfile, user__user__username=username).following.all()
+    if request.user.is_authenticated:
+        user_profile = get_object_or_404(UserProfile, user__user=request.user)
+        user_following = user_profile.following.all()
+        if user_profile in profile_following:
+            profile_following = profile_following.exclude(pk=user_profile.pk)
+            logged_user = UserFollowingSerializer(user_profile).data
+    following = profile_following.intersection(user_following)
+    follow = profile_following.difference(user_following)
+    serializer_following = UserFollowingSerializer(following, many=True)
+    serializer_follow = UserFollowingSerializer(follow, many=True)    
+    return Response({ "logged_user":logged_user, "follow":serializer_follow.data, "unfollow":serializer_following.data }, status=status.HTTP_200_OK)
