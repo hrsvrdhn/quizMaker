@@ -48,7 +48,9 @@
                 minLength: 1
             },
             data: [
+                {% if topic %}
                 { tag: "{{ topic }}"},
+                {% endif %}
             ],
         });
         {% if topic %}

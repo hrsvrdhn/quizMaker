@@ -380,4 +380,16 @@ def allTests(request):
 		"topics": topics,
 		"tests": tests, 
 	}
+	if request.user.is_authenticated:
+		user_profile = get_object_or_404(UserProfile ,user__user=request.user)
+		try:
+			user_profile_pic_url = requests.get(user_profile.user.get_avatar_url()).url
+		except:
+			pass
+		user_context =  {
+			'name': user_profile.user.extra_data['name'],
+			'profile_pic': user_profile_pic_url,
+			'pageTitle': user_profile.user.extra_data['name'], 
+		}
+		context["user_context"] = user_context
 	return render(request, "alltest.html", context)

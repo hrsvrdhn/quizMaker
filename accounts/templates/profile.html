@@ -71,34 +71,76 @@
         </div>
     </div>
     <div class="col s12 m9">
-        {% for teststat in tests_taken %}        
-        <div class="col s12 m4">
-            <a href="{{ teststat.test.get_test_detail_url }}">
-                <div class="card testcard z-depth-3">
-                    <div class="card-content">
-                        <span class="card-title grey-text text-darken-3">
-                        {{ teststat.test.name }}
-                        <span class=" right">
-                            {% if teststat.has_completed %}
-                            <i class="material-icons green-text">done_all</i>
-                            {% else %}
-                            <i class="material-icons red-text">watch_later</i>                
-                            {% endif %}
-                        </span>
-                        </span>
-                        <span class="grey-text text-darken-3">
-                            Date Taken: {{ teststat.date_taken|date }}
-                            <br>
-                            {% if not teststat.score == None %}
-                            Score: {{ teststat.score }} 
-                            {% endif %}
-                            <br>
-                        </span>
-                    </div>
+        <div class="row">
+            <div class="col s12 valign-wrapper">            
+                <h5 class="grey-text text-darken-4">History</h5>
+                <div class="input-field col s6">
+                    <input id="search_bar" type="text" placeholder="Search tests">
                 </div>
-            </a>
+            </div>
         </div>
-        {% endfor %}
+        <div class="row">
+            {% for teststat in tests_taken %}
+            {% if not teststat.has_completed %}        
+            <div class="col s12 m4 testcard" data-name="{{teststat.test.name}}">
+                <a href="{{ teststat.test.get_test_detail_url }}">
+                    <div class="card testcard-inside z-depth-3">
+                        <div class="card-content">
+                            <span class="card-title grey-text text-darken-3">
+                                {{ teststat.test.name }}
+                                <span class=" right">
+                                    {% if teststat.has_completed %}
+                                    <i class="material-icons green-text">done_all</i>
+                                    {% else %}
+                                    <i class="material-icons red-text">watch_later</i>                
+                                    {% endif %}
+                                </span>
+                            </span>
+                            <span class="grey-text text-darken-3">
+                                Date Taken: {{ teststat.date_taken|date }}
+                                <br>
+                                    {% if not teststat.score == None %}
+                                    Score: {{ teststat.score }} 
+                                    {% endif %}
+                                <br>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% for teststat in tests_taken %}
+            {% if teststat.has_completed %}        
+            <div class="col s12 m4 testcard" data-name="{{teststat.test.name}}">
+                <a href="{{ teststat.test.get_test_detail_url }}">
+                    <div class="card testcard-inside z-depth-3">
+                        <div class="card-content">
+                            <span class="card-title grey-text text-darken-3">
+                                {{ teststat.test.name }}
+                                <span class=" right">
+                                    {% if teststat.has_completed %}
+                                    <i class="material-icons green-text">done_all</i>
+                                    {% else %}
+                                    <i class="material-icons red-text">watch_later</i>                
+                                    {% endif %}
+                                </span>
+                            </span>
+                            <span class="grey-text text-darken-3">
+                                Date Taken: {{ teststat.date_taken|date }}
+                                <br>
+                                    {% if not teststat.score == None %}
+                                    Score: {{ teststat.score }} 
+                                    {% endif %}
+                                <br>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
     </div>
 </div>
 </div>
@@ -109,6 +151,20 @@
     $(document).ready(function() {
         $(".modal").modal();
         $(".followingPgBar").css('display', "block");
+        $("#search_bar").on('input', function(evt) {
+            var query = $("#search_bar").val();
+            if(query === undefined || query.length === 0) {
+                $(".testcard").show(200);
+                return;
+            } 
+            $(".testcard").each((ind, element) => {
+                if($(element).attr("data-name").indexOf(query) !== -1) {
+                    $(element).show(200);
+                } else {
+                    $(element).hide(200);                    
+                }
+            })
+        });
         $(".seeAll").click(function(evt) {
             evt.preventDefault();
             $("#userFollowingModal").modal('open');
@@ -157,7 +213,7 @@
             $(this).toggleClass('z-depth-3');            
             $(this).toggleClass('z-depth-2');
         });
-        $(".testcard").hover(function() {
+        $(".testcard-inside").hover(function() {
             $(this).toggleClass('z-depth-3');            
          $(this).toggleClass('z-depth-2');
         });
