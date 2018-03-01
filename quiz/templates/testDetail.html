@@ -63,7 +63,11 @@
         </div>
         <div class="row">
             <div class="col s12 l7">
-                <canvas id="histogram"></canvas>
+                <div class="card">
+                    <div class="card-content">
+                        <canvas id="histogram"></canvas>
+                    </div>  
+                </div>
             </div>
             <div class="col s12 l5 card right">
                 <div class="card-content">
@@ -81,7 +85,16 @@
                             {% for teststat in teststats|slice:"5" %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
-                                <td>{{ teststat.candidate.user.extra_data.name }}</td>
+                                <td>
+                                    <style>
+                                        .leaderboard-link:hover {
+                                            font-weight: bold;
+                                        }
+                                    </style>
+                                    <a class="grey-text text-darken-4 leaderboard-link" href="{{ teststat.candidate.get_absolute_url }}">
+                                    {{ teststat.candidate.user.extra_data.name }}
+                                    </a>
+                                </td>
                                 <td>{{ teststat.score }}</td>                            
                             </tr>
                             {% endfor %}
@@ -139,7 +152,8 @@ $(document).ready(function() {
                         "yAxes":[
                             {
                                 "ticks":{
-                                    "beginAtZero":true
+                                    "beginAtZero":true,
+                                    callback: function(value) {if (value % 1 === 0) {return value;}}
                                 }
                             }
                         ]

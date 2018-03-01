@@ -31,7 +31,7 @@
 <div style="margin: 2%">
   <div class="row">
     <div class="col s2 l1 right">
-      <a id="add-new-question" class="waves-effect waves-light btn-floating blue z-depth-3" href="#" onclick="$('#addTestModal').modal('open');"><i class="material-icons" style="vertical-align: middle">playlist_add</i>Add Test</a>
+      <a id="add-new-question" class="waves-effect waves-light btn-floating blue z-depth-3 right" href="#" onclick="$('#addTestModal').modal('open');"><i class="material-icons" style="vertical-align: middle">playlist_add</i>Add Test</a>
     </div>
   </div>
   <div class="row">
@@ -40,7 +40,14 @@
         <div class="card testcard z-depth-5">
           <div class="card-content">
             <span class="card-title">
-              <b>{{ test.name }}</b>
+              <style>
+                .test-name:hover {
+                  font-weight: bold;
+                }
+              </style>
+              <a class="test-name grey-text text-darken-4" href="{{ test.get_test_detail_url }}">
+                {{ test.name }}
+              </a>
               <a href="{{test.get_absolute_url}}" class="btn-floating btn-small right red" style="margin-left:1%">
                   <i class="material-icons" style="vertical-align: middle">settings</i>
               </a>

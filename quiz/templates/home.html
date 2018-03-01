@@ -67,12 +67,49 @@
           </div>
         </div>
       </div>
+      <div class="col s12 l4 right">
+        <div class="card">
+          <div class="card-content">
+            <canvas id="donut"></canvas>
+          </div>
+        </div>
+      </div> 
   </div>
 </div>
 {% endblock content %}
 {% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 <script>
   $(document).ready(function(){
+    $.ajax({
+      method: "GET",
+      url: "{% url 'topic:countTopic' %}",
+      success: function(data, textStatus, jqXHR) {
+        console.log(data);
+        var donutChart = new Chart(document.getElementById("donut"),{
+          "type":"doughnut",
+          "data":{
+              "labels":data.name,
+              "datasets":[
+                  {
+                      "label":"Topics",
+                      "data":data.count,
+                      "backgroundColor":data.colors
+                  }
+              ]
+          },
+          "options": {
+            onClick: function(evt, activePoints) {
+              var getClickIndex = activePoints[0]._index;
+              var topicName = donutChart.data.labels[getClickIndex];
+              window.location.href = '{% url "quiz:alltest" %}?topic='+ encodeURIComponent(topicName);
+            }
+          }
+        });
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+      }
+    })
     $(".carousel").append(`
     <div class="preloader-wrapper big active">
     <div class="spinner-layer spinner-blue-only">

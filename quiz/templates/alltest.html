@@ -1,0 +1,100 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+<div style="margin: 2rem">
+    <div class="row">
+        <div class="col s12">
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-title">
+                        All tests
+                    </div>
+                    Filter topics: <div class="chips chips-autocomplete"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            {% for test in tests %}
+            <div id="testcard{{forloop.counter0}}" class="col s12 l3 card testcard z-depth-3" style="margin-right:7rem" data-topic='{% for topic in test.topics.all %}{{topic.name}},{% endfor %}
+            '>
+                <div class="card-content grey-text text-darken-3">
+                    <a class="card-title grey-text text-darken-4" href="{% url 'quiz:testDetail' pk=test.pk %}">{{test.name}}</a>
+                    <br>by <a href="{{ test.owner.get_absolute_url }}" class="grey-text text-darken-4">{{ test.owner.user.extra_data.name }}</a>
+                    <br>Attempts: {{ test.get_attempts }}
+                    <br>Average Rating: {{ test.get_average_rating }}
+                    <br>Added on: {{ test.published_on }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('.chips-autocomplete').material_chip({
+            autocompleteLimit: 5,
+            autocompleteOptions: {
+                data: {
+                    {% for topic in topics %}
+                        "{{ topic.name }}": null,
+                    {% endfor %}
+                },
+                limit: Infinity,
+                minLength: 1
+            },
+            data: [
+                { tag: "{{ topic }}"},
+            ],
+        });
+        {% if topic %}
+            $(".testcard").each((ind, element) => {
+                if($(element).attr("data-topic").split(",").indexOf("{{topic}}") === -1) {
+                    $(element).hide(200);
+                }
+            });                
+        {% endif %}
+        $('.chips').on('chip.add', function(e, chip){
+            $(".testcard").each((ind, element) => {
+                var flag = false;
+                $(".chips").material_chip('data').forEach((chip, index) => {
+                    if($(element).attr("data-topic").split(",").indexOf(chip.tag) !== -1) {
+                        flag = true;
+                    }
+                });
+                if(flag) {
+                    $(element).show(200);
+                } else {
+                    $(element).hide(200);
+                }
+            })
+        });
+        $('.chips').on('chip.delete', function(e, chip){
+            if($('.chips').material_chip('data').length === 0){
+                $(".testcard").show(200);
+                return;
+            }
+            $(".testcard").each((ind, element) => {
+                var flag = false;
+                $(element).attr("data-topic").split(",").forEach((element, ind) => {
+                    $(".chips").material_chip('data').forEach((chip, indexx) => {
+                        if(chip.tag === element) {
+                            flag = true;
+                        }
+                    })
+                });
+                if(flag) {
+                    $(element).show(200);
+                } else {
+                    $(element).hide(200);                    
+                }
+            })
+        });
+
+    });
+</script>
+{% endblock scripts %}

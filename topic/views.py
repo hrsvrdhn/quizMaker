@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse, get_object_or_404, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.http import Http404
+from django.db.models import Count
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -34,3 +35,16 @@ def RemoveTopic(request):
             print(topic.liked_by.all())
             return Response(serializer.data, status=status.HTTP_200_OK)        
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+from random import randint
+@api_view(['GET'])
+def countTopic(request):
+    qs = Topic.objects.annotate(Count("tests")).exclude(tests__count=0)
+    topic_name = [q.name for q in qs]
+    topic_count = [q.tests__count for q in qs]
+    colors = ["rgb({},{},{})".format(randint(1,255),randint(1,255),randint(1,255)) for _ in range(qs.count())]
+    return Response({
+        "name": topic_name,
+        "count": topic_count,
+        "colors": colors,
+    })

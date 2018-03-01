@@ -46,7 +46,7 @@
         <a href="/" class="brand-logo">QuizMaker</a>
         <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
         <ul class="right hide-on-med-and-down">
-          <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="{% url 'quiz:mytest' %}">My Test<i class="material-icons left">receipt</i></a></li>
+          <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="{% url 'quiz:alltest' %}">All Tests<i class="material-icons left">receipt</i></a></li>
           <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="{% url 'user:myprofile' %}">My Profile <i class="material-icons left">account_box</i></a></li>
           <li>
             {% if request.user.is_authenticated %}
@@ -71,7 +71,7 @@
               <a href="#!name"><span class="name white-text"><h5>Hello,{{ user_context.name|default:"Anonymous" }}</h5></span></a>
           </div></li>
           <li><div class="divider"></div></li>
-          <li><a href="{% url 'quiz:mytest' %}">My Test</a></li><hr/>
+          <li><a href="{% url 'quiz:alltest' %}">All Tests</a></li><hr/>
           <li><a href="{% url 'user:myprofile' %}">My Profile</a></li><hr/>
           <li>
             {% if request.user.is_authenticated %}            

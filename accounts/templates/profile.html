@@ -30,6 +30,9 @@
                 {% if not owner and request.user.is_authenticated %}
                 <a class="togglefollow btn-flat blue white-text lighten-1 z-depth-1" href="#" data-url="{{ profile.get_follow_url }}" style="margin-right:1%; font-size:0.8rem;">{% if following %}Unfollow{% else %}Follow{% endif %}</a>
                 {% endif %}
+                {% if owner %}
+                <a class="btn-flat blue white-text lighten-1 z-depth-1" href="{% url 'quiz:mytest' %}" style="margin-right:1%; font-size:0.8rem;">Manage tests</a>                
+                {% endif %}
                 <button class="btn-flat activator blue white-text lighten-1 z-depth-1" style="margin-right:1%; font-size:0.8rem;">Favourite Topics <i class="material-icons" style="vertical-align: middle">eject</i></button>
             </div>
         </div>
@@ -117,6 +120,7 @@
                 url: "{% url 'user:followings' username=profile.user.user.username %}",
                 success: function(data, textStatus, jqXHR) {
                     console.log(data);
+                    $(".followingPgBar").hide(500);
                     if(data.logged_user !== null) {
                         $(".followingCollection").append(`
                             <li class="collection-item" style="height:60px">

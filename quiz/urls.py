@@ -3,6 +3,7 @@ from quiz import views
 
 urlpatterns = [
 	re_path(r'^$', views.home, name="home"),
+	re_path(r'^all$', views.allTests, name="alltest"),	
 	re_path(r'^mytests$', views.myTest, name="mytest"),
 	re_path(r'^(?P<pk>[0-9]+)$', views.manageTest, name="manageTest"),
 	re_path(r'^(?P<pk>[0-9]+)/take$', views.takeQuiz, name="takeQuiz"),

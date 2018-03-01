@@ -369,3 +369,15 @@ def score_distribution(requests, pk):
 		data.append(teststats.filter(score__gt=(percentage-0.2)*test.get_question_count(),score__lte=percentage*test.get_question_count()).count())
 		percentage += 0.2
 	return Response({"data": data})
+
+@require_http_methods(['GET'])
+def allTests(request):
+	topic = request.GET.get("topic", None)
+	topics = Topic.objects.all()
+	tests = Test.objects.filter(publish=True, is_active=True)
+	context = {
+		'topic': topic,
+		"topics": topics,
+		"tests": tests, 
+	}
+	return render(request, "alltest.html", context)
