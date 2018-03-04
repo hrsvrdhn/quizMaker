@@ -82,10 +82,10 @@ def Profile(request, username=None):
         user_context =  {
             'name': user_profile.user.extra_data['name'],
             'profile_pic': user_profile_pic_url,
-            'pageTitle': user_profile.user.extra_data['name'], 
         }
     else:
         following = False
+    user_context['pageTitle'] = profile.user.extra_data['name'], 
     context = {
         "profile": profile,
         'owner': owner,

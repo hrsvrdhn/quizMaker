@@ -257,7 +257,7 @@
                 minLength: 1
                 },
                 data: [
-                    {% for topic in topics %}
+                    {% for topic in profile.topics.all %}
                         { tag: "{{ topic }}"},
                     {% endfor %}
                 ],

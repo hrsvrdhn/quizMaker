@@ -179,8 +179,8 @@ def QuestionStatForm(request, qpk):
 			print(e)
 			return Response()
 	else:
-		user_response = request.POST['option']
-		if not user_response or teststat.has_completed:
+		user_response = request.POST.get('option', None)
+		if teststat.has_completed:
 			return Response(status=HTTP_400_BAD_REQUEST)
 		questionstat, created = QuestionStat.objects.get_or_create(question=question, candidate=user_profile)
 		questionstat.response = user_response
@@ -245,8 +245,9 @@ def AddTopic(request, pk):
 		if serializer.is_valid() and test.topics.count() < 10:
 			if serializer.validated_data['name'].isalnum():
 				topic, created = Topic.objects.get_or_create(name=serializer.validated_data['name'])
-				test.topics.add(topic)
-				return Response(serializer.data, status=status.HTTP_200_OK)
+				if test.topics.count() < 10:
+					test.topics.add(topic)
+					return Response(serializer.data, status=status.HTTP_200_OK)
 	return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['DELETE'])

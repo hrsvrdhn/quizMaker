@@ -19,8 +19,9 @@ def AddTopic(request):
             if serializer.validated_data['name'].isalnum():
                 topic, created = Topic.objects.get_or_create(name=serializer.validated_data['name'])
                 profile = UserProfile.objects.get(user__user=request.user)
-                profile.topics.add(topic)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                if profile.topics.count() < 10:
+                    profile.topics.add(topic)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])

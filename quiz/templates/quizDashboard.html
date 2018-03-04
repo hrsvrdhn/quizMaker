@@ -65,31 +65,41 @@
 							<div class="indeterminate"></div>
 						</div>
 						<div class="mainContent">			  
-		        		<p id="questionData">I am a very simple card. I am good at containing small bits of information.
-    					  I am convenient because I require little markup to use effectively.</p>
+		        		<p id="questionData">
+								<!-- QUESTION HERE -->
+						</p>
 						<form id="submitResponse" action="POST" data-url="" data-qno="">
     					<div style="margin-top: 2rem">
       			    	<p>
-						<input name="option" type="radio" id="option1" value="Red"/>
-							<label for="option1">Red</label>
+							<input name="option" type="radio" id="option1" value="Red"/>
+							<label for="option1">
+								<!-- OPTION 1 HERE -->
+							</label>
 						</p>
 						<p>
-						<input name="option" type="radio" id="option2" value="Green"/>
-						<label for="option2">Green</label>
+							<input name="option" type="radio" id="option2" value="Green"/>
+							<label for="option2">
+								<!-- OPTION 2 HERE -->
+							</label>
 						</p>
 						<p>
-						<input name="option" type="radio" id="option3" value="Blue"/>
-						<label for="option3">Blue</label>
+							<input name="option" type="radio" id="option3" value="Blue"/>
+							<label for="option3">
+								<!-- OPTION 3 HERE -->
+							</label>
 						</p>
 						<p>
 							<input name="option" type="radio" id="option4" value="Yellow"/>
-							<label for="option4">Yellow</label>
-							</p>
+							<label for="option4">
+								<!-- OPTION 4 HERE -->
+							</label>
+						</p>
 						</div>
 							<div style="margin-top: 2rem;">
 								<div class="center">
 									<a class="changeQuestion btn btn-floating waves-effect waves-light red left z-depth-4" data-direction="-1">&laquo;</a>
 									<button type="submit" class="btn waves-effect waves-light red z-depth-4">Submit</button>
+									<button id="clearResponseBtn" class="btn waves-effect waves-light red z-depth-4">Clear</button>
 									<a class="changeQuestion btn btn-floating waves-effect waves-light red right z-depth-4" data-direction="1">&raquo;</a>
 								</div>
 							</div>
@@ -174,6 +184,14 @@
 				}).on('pnotify.cancel', function(){
 				});
 		})
+		$("input[name='option']").click(function(evt){
+			$("#submitResponse button[type='submit']").prop("disabled", false);			
+		});
+		$("#clearResponseBtn").click(function(evt) {
+			evt.preventDefault();
+			$("input[name='option']").prop("checked", false);
+			$("#submitResponse button[type='submit']").prop("disabled", false);				
+		});
 		$("#submitResponse").submit(function(evt){
 			evt.preventDefault();
 			var $formData = $(this).serialize();
@@ -183,8 +201,9 @@
 					url: $thisURL,
 					data: $formData,
 					success: function(data, textStatus, jqXHR) {
+						$("#submitResponse button[type='submit']").prop("disabled", true);
 						new PNotify({
-				    	title: 'response Submitted!',
+				    	text: 'Response submitted!',
 				    	type: 'info'
 						});
 					},

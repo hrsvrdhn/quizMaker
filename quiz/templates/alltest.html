@@ -9,7 +9,18 @@
                     <div class="card-title">
                         All tests
                     </div>
-                    Filter topics: <div class="chips chips-autocomplete"></div>
+                    <div class="row">
+                        <div class="col s12 input-field">
+                            <div class="col s12 l6">
+                                <span>Filter name:</span>
+                                <input id="search_bar" type="text">
+                            </div>
+                            <div class="col s12 l6">
+                                <span>Filter topics:</span>                                
+                                <div class="chips chips-autocomplete"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -17,7 +28,7 @@
     <div class="row">
         <div class="col s12">
             {% for test in tests %}
-            <div id="testcard{{forloop.counter0}}" class="col s12 l3 card testcard z-depth-3" style="margin-right:7rem" data-topic='{% for topic in test.topics.all %}{{topic.name}},{% endfor %}
+            <div id="testcard{{forloop.counter0}}" data-name="{{test.name}}" class="col s12 l3 card testcard z-depth-3" style="margin-right:7rem" data-topic='{% for topic in test.topics.all %}{{topic.name}},{% endfor %}
             '>
                 <div class="card-content grey-text text-darken-3">
                     <a class="card-title grey-text text-darken-4" href="{% url 'quiz:testDetail' pk=test.pk %}">{{test.name}}</a>
@@ -60,6 +71,20 @@
                 }
             });                
         {% endif %}
+        $("#search_bar").on('input', function(evt) {
+            var query = $("#search_bar").val();
+            if(query === undefined || query.length === 0) {
+                $(".testcard").show(200);
+                return;
+            } 
+            $(".testcard").each((ind, element) => {
+                if($(element).attr("data-name").indexOf(query) !== -1) {
+                    $(element).show(200);
+                } else {
+                    $(element).hide(200);                    
+                }
+            })
+        });
         $('.chips').on('chip.add', function(e, chip){
             $(".testcard").each((ind, element) => {
                 var flag = false;
@@ -76,6 +101,7 @@
             })
         });
         $('.chips').on('chip.delete', function(e, chip){
+            var query = $("#search_bar").val();
             if($('.chips').material_chip('data').length === 0){
                 $(".testcard").show(200);
                 return;
