@@ -36,7 +36,7 @@
 		  <ul id="questionButtons" class="collection" style="display: block; overflow-y: scroll; height: 100vh;">
 				<!-- To be filled by buttons -->
 				{% for i in no_of_questions %}
-				<li class="collection-item"><a class="questionButton btn-floating btn waves-effect waves-light red" data-no="{{i}}">{{ i|add:"1" }}</a></li>
+				<li class="collection-item"><button type="button" class="questionButton btn-floating btn waves-effect waves-light red" data-no="{{i}}">{{ i|add:"1" }}</button></li>
 				{% endfor %}
 		  </ul>
 		</div>
@@ -98,8 +98,8 @@
 							<div style="margin-top: 2rem;">
 								<div class="center">
 									<a class="changeQuestion btn btn-floating waves-effect waves-light red left z-depth-4" data-direction="-1">&laquo;</a>
-									<button type="submit" class="btn waves-effect waves-light red z-depth-4">Submit</button>
-									<button id="clearResponseBtn" class="btn waves-effect waves-light red z-depth-4">Clear</button>
+									<button type="submit" class="btn waves-effect waves-light red z-depth-4" {% if has_completed %}disabled{% endif %}>Submit</button>
+									<button id="clearResponseBtn" class="btn waves-effect waves-light red z-depth-4" {% if has_completed %}disabled{% endif %}>Clear</button>
 									<a class="changeQuestion btn btn-floating waves-effect waves-light red right z-depth-4" data-direction="1">&raquo;</a>
 								</div>
 							</div>
@@ -190,7 +190,10 @@
 		$("#clearResponseBtn").click(function(evt) {
 			evt.preventDefault();
 			$("input[name='option']").prop("checked", false);
-			$("#submitResponse button[type='submit']").prop("disabled", false);				
+			$("#submitResponse button[type='submit']").prop("disabled", false);	
+			setTimeout(function(){
+				$("#submitResponse").submit();
+			},1);	
 		});
 		$("#submitResponse").submit(function(evt){
 			evt.preventDefault();
@@ -221,9 +224,13 @@
 		});
 		$(".questionButton").click(function(evt) {
 			evt.preventDefault();
+			$(".questionButton").prop("disabled", false);
+			$(this).prop("disabled", true);
 			loadQuestion(parseInt($(this).attr("data-no")));
 		})
 		function loadQuestion(qno) {
+			$(".questionButton").prop("disabled", false);
+			$(`.questionButton[data-no=${qno}]`).prop("disabled", true);						
 			$(".progress").show(200);
 			$(".mainContent").css("filter","blur(2px)");
 			$(".ql-editor").html(`${qno+1}. ${questions[qno].question}`);

@@ -9,23 +9,7 @@
 {% endblock styles %}
 {% block content %}
 
-<!-- ADD TEST MODAL STARTS -->
-<div id="addTestModal" class="modal modal-fixed-footer">
-  <form method="POST" class="ajax-test-form" action="." data-url="{% url 'quiz:addTestForm' %}">
-    <div class="modal-content">
-      <h4 id="modal-title" id="exampleModalLongTitle">Add Test</h4>
-      <div class="input_field">
-        {%csrf_token%}
-        {{ testForm.as_p }}
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button id="modal-close" type="button" class="modal-action modal-close waves-effect waves-green btn" data-dismiss="modal">Close</button>
-      <button type="submit" id="testSaveButton" class="waves-effect waves-green btn">Add Test</button>
-    </div>
-  </form>
-</div>
-<!-- ADD TEST MODAL ENDS -->
+{% include 'modals/addTestModal.html' %}
 
 <!-- MAIN CONTENT STARTS -->
 <div style="margin: 2%">

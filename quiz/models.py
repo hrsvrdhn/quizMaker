@@ -10,11 +10,13 @@ from accounts.models import UserProfile
 # Create your models here.
 class TestManager(models.Manager):
 	def recommended(self, user):
-		recommended_list = []
-		for test in self.get_queryset().filter(publish=True, is_active=True):
-			if test.owner != user and test.topics.all().intersection(user.topics.all()).count() >= 1 and not TestStat.objects.filter(test=test, candidate=user).exists():
-				recommended_list.append(test)
-		return recommended_list
+		return self.get_queryset().filter(topics__in=user.topics.all()).distinct().exclude(owner=user).exclude(attempts__in=TestStat.objects.filter(candidate=user)).distinct()
+		# recommended_list = []
+		# self.get_queryset.filter(publish=True, is_active=True).exclude(owner=user, teststats)
+		# for test in self.get_queryset().filter(publish=True, is_active=True):
+		# 	if test.owner != user and test.topics.all().intersection(user.topics.all()).count() >= 1 and not TestStat.objects.filter(test=test, candidate=user).exists():
+		# 		recommended_list.append(test)
+		# return recommended_list
 
 class Test(models.Model):
 	name = models.CharField(max_length=500, blank=False, default="Sample Test")
@@ -25,6 +27,7 @@ class Test(models.Model):
 	publish = models.BooleanField(default=False)
 	is_active = models.BooleanField(default=False)
 	published_on = models.DateTimeField(null=True)
+	negative_marking = models.IntegerField(default=0, validators=[MinValueValidator(0)])
 
 	objects = TestManager()
 
@@ -74,7 +77,7 @@ class TestStat(models.Model):
 	candidate = models.ForeignKey(UserProfile, related_name='teststats', on_delete=models.CASCADE)
 	has_completed = models.BooleanField(default=False)
 	date_taken = models.DateTimeField(auto_now_add=True)
-	score = models.IntegerField(null=True)
+	score = models.DecimalField(max_digits=9, decimal_places=6, null=True)
 
 	def get_total_attempts(self):
 		return QuestionStat.objects.filter(question__in=self.test.questions.all(), candidate=self.candidate).count()
@@ -87,6 +90,11 @@ class TestStat(models.Model):
 	def save(self, *args, **kwargs):
 		if self.has_completed:
 			self.score = QuestionStat.objects.filter(question__in=self.test.questions.all(), candidate=self.candidate, is_correct=True).count()
+			try:
+				self.score -= QuestionStat.objects.filter(question__in=self.test.questions.all(), candidate=self.candidate, is_correct=False).count() / self.test.negative_marking
+			except:
+				pass
+			self.score = round(self.score, 2)
 		super(TestStat, self).save(*args, **kwargs)
 
 	def __str__(self):

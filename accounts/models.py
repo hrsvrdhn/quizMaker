@@ -4,7 +4,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.urls import reverse_lazy
 from django.conf import settings
-from django.db.models import Sum
+from django.db.models import Sum,Count
 
 from allauth.account.signals import user_logged_in
 from allauth.socialaccount.models import SocialAccount
@@ -63,21 +63,15 @@ class UserProfile(models.Model):
         return self.teststats.filter(candidate=self, has_completed=True).count()
 
     def get_attempts_count(self):
-        ans = 0
-        for result in self.teststats.filter(has_completed=True):
-            ans += result.test.get_question_count()
-        return ans
-    
-    def get_correct_response_count(self):
         if self.teststats.filter(has_completed=True).exists():
-            return self.teststats.filter(has_completed=True).aggregate(Sum('score')).get("score__sum")
+            return self.teststats.filter(has_completed=True).annotate(questions_count=Count("test__questions")).aggregate(Sum("questions_count")).get("questions_count__sum")
         return 0
+
+    def get_correct_response_count(self):
+        return self.questionstat.filter(question__test__attempts__has_completed=True, is_correct=True).distinct().count()
     
     def get_wrong_response_count(self):
-        ans = 0
-        for result in self.teststats.filter(has_completed=True):
-            ans += result.get_wrong_response_count()
-        return ans
+        return self.questionstat.filter(question__test__attempts__has_completed=True, is_correct=False).distinct().count()
     
     def get_accuracy(self):
         try:

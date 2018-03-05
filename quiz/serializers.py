@@ -8,7 +8,7 @@ class TestSerializer(serializers.ModelSerializer):
 	attempts = serializers.IntegerField(source="get_attempts", read_only=True)
 	class Meta:
 		model = Test
-		fields =  ('id', 'name', 'created_on', 'owner', 'attempts', 'rating', 'topics')
+		fields =  ('id', 'name', 'created_on', 'owner', 'attempts', 'rating', 'topics', 'negative_marking')
 
 class QuestionSerializer(serializers.ModelSerializer):
 	test = serializers.PrimaryKeyRelatedField(read_only=True)

@@ -20,36 +20,43 @@
 <!-- MODAL ENDS -->
 <div style="margin: 2%">
 <!-- TEST DETAIL STARTS -->
-	<div class="card" style="padding: 1%">
-		<div class="row">
-			<div class="col s12 l6">
-				<div class="card detailcard" style="padding: 1%">
-					<label for="id_name" class="active">Name:</label><input type="text" name="name" value="{{test.name}}" maxlength="500" id="id_name">
-					<label for="id_date" class="active">Added On:</label><input type="text" name="date" value="{{test.created_on|date}}" id="id_date">
+	<div class="row">
+		<div class="col s12 l12 grey-text text-darken-4">
+			<h5>{{test.name}}</h5>
+			<hr>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col s12 l3 grey-text text-darken-3">
+			<span class="grey-text text-darken-2">Added on: </span>{{test.created_on|date}}
+		</div>	
+		<div class="col s12 l3 grey-text text-darken-3">
+			<span class="grey-text text-darken-2">Negative marking: </span>{% if test.negative_marking %}1/{{test.negative_marking}}{% else %}None{% endif %}
+		</div>
+
+		<div class="col s12 l2 offset-l2 right-align">
+			<button data-url="{% url 'quiz:togglepublish' pk=test.pk %}" class="btn togglepublish" {% if test.publish %}disabled{% endif %} style="font-size:0.8rem" style="margin: 1%">
+				<i class="material-icons left">visibility</i>Publish
+			</button>
+		</div>
+		<div class="col s12 l2 right-align">
+			<button style="font-size:0.8rem" class="btn btn-toggleactive" {% if not test.publish %}disabled{% endif %}>
+				<div class="switch">
+					Active
+					<label>
+						<input class="toggleactive" type="checkbox" {% if test.is_active %}checked{% endif %}>
+						<span class="lever"></span>
+					</label>
 				</div>
-			</div>
-			<div class="col s12 l5 right">
-				<div style="padding: 2%" class="right">
-					<button data-url="{% url 'quiz:togglepublish' pk=test.pk %}" class="btn togglepublish" {% if test.publish %}disabled{% endif %}>
-						<i class="material-icons left">visibility</i>Publish Test
-					</button>
-					<button class="btn btn-toggleactive" {% if not test.publish %}disabled{% endif %}>
-						<div class="switch">
-							Active
-							<label>
-								<input class="toggleactive" type="checkbox" {% if test.is_active %}checked{% endif %}>
-								<span class="lever"></span>
-							</label>
-						</div>
-					</button>
-				</div>
-			</div>
-			<div class="col s12 l6">
-				<div class="card topiccard" style="padding: 1%">			
-					<label class="active">Topic</label>
-					<div class="chips tooltipped"></div>
-				</div>
-			</div>
+			</button>
+		</div>
+	</div>
+</div>
+	
+	<div class="row" style="padding: 1%">
+		<div class="col s12 l12">
+			<label class="active">Add Topics</label>
+			<div class="chips tooltipped"></div>
 		</div>
 	</div>
 <!-- TEST DETAIL ENDS -->
@@ -72,9 +79,6 @@
 {% block scripts %}
 <script>
 	$(document).ready(function() {
-		$(".detailcard,.topiccard").hover(function() {
-      		$(this).toggleClass('z-depth-4');
-		});
 		$("#questionList").on('mouseenter', '.questioncard', function() {
 			$(this).toggleClass('z-depth-4');
 		});
