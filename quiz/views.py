@@ -216,7 +216,7 @@ def takeQuiz(request, pk):
 	}
 	context = {
 		'testno': test.id,
-		'score': score,	
+		'score': round(score,2),	
 		'has_completed': has_completed,
 		'no_of_questions': range(no_of_questions),
 		'feedback': feedback,
@@ -406,3 +406,23 @@ def deleteTest(request, pk):
 			test.delete()
 			return Response(status=status.HTTP_204_NO_CONTENT)
 	return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def score_chart(request, pk):
+	if request.user.is_authenticated:
+		user_profile = get_object_or_404(UserProfile, user__user=request.user)
+		test = get_object_or_404(Test, pk=pk)
+		teststat = get_object_or_404(TestStat, candidate=user_profile, test=test)
+		if teststat.has_completed:
+			correct_count = teststat.get_correct_response_count()
+			wrong_count = teststat.get_wrong_response_count()
+			total = teststat.get_total_attempts()
+			colors = ["rgb(0,255,0)", "rgb(255,0,0)", "rgb(105,105,105)"]
+			return Response({
+				"correct_count": correct_count,
+				"wrong_count": wrong_count,
+				"total": total,
+				"colors": colors,
+    		})
+	return Response(status=status.HTTP_404_NOT_FOUND)
+    

@@ -1,35 +1,8 @@
 {% extends 'account/base.html' %}
 
 {% block content %}
-<div id="modal1" class="modal">
-	<div class="modal-content" style="padding:0%">
-		<nav class="website-theme">
-			<div class="nav-wrapper">
-				<div class="left col s8 m5 l5">
-					<ul>
-					<li><a href="#!" class="email-type">Rate this test</a></li>
-					</ul>
-				</div>
-				<div class="col s4 m7 l7">
-					<ul class="right">
-						{% if not feedback %}
-						<li><a href="#!" class="giveFeedback"><i class="modal-action modal-close material-icons">send</i></a></li>
-						{% endif %}  
-						<li><a href="#!"><i class="modal-action modal-close material-icons">clear</i></a></li>
-					</ul>
-				</div>
-			</div>
-		</nav>
-		<div class="row">
-			<div class="col s10 l8 offset-s1 offset-l2">
-				<p class="range-field">
-					<input type="range" id="rating" min="0" max="5" {% if feedback %} value="{{ feedback }}" disabled {% endif %}/>
-				</p>
-				<p class="feedbackMessage center">{% if feedback %}Thanks for your response !{% else %}Share your experience and help us to improve{% endif %}</p>
-			</div>
-		</div>
-	</div>
-</div>
+{% include 'modals/feedbackModal.html' %}
+{% include 'modals/scoreModal.html' %}
 <div>
 	<div class="row">
 		<div class="col l1 hide-on-med-and-down">
@@ -44,75 +17,90 @@
 			<div class="row">
 				{% if has_completed %}
 					<div class="col left">
-						<button type="button" class="btn waves-effect waves-light red">Score:{{ score }}</button>
+						<a class="btn waves-effect waves-light red z-depth-3 modal-trigger" data-target="scoreModal"><span class="right">Score:{{ score }}</span><span class="left"><i class="material-icons">pie_chart</i></span></a>
 					</div>
 				{% endif %}
 				<div class="col right">
 					{% if has_completed %}
-					<button type="button" data-target="modal1" class="btn waves-effect waves-light blue modal-trigger">Rate it</a>
+					<button type="button" data-target="feedbackModal" class="btn waves-effect waves-light blue modal-trigger z-depth-3">Rate it</a>
 					{% else %}
 					<form id="endQuizForm" method="POST" data-tno="{{ testno }}" action="{% url 'quiz:endQuiz' pk=testno %}">
 						{% csrf_token %}
-						<button type="button" class="btn waves-effect waves-light red endQuizButton">End Quiz</a>
+						<button type="button" class="btn waves-effect waves-light red endQuizButton  z-depth-3">End Quiz</a>
 					</form>
 					{% endif %}
 				</div>
 			</div>
 			<div class="row">
 				<div class="container">
-					<div class="card-panel z-depth-4" style="">
-						<div class="progress">
-							<div class="indeterminate"></div>
-						</div>
-						<div class="mainContent">			  
-		        		<p id="questionData">
-								<!-- QUESTION HERE -->
-						</p>
-						<form id="submitResponse" action="POST" data-url="" data-qno="">
-    					<div style="margin-top: 2rem">
-      			    	<p>
-							<input name="option" type="radio" id="option1" value="Red"/>
-							<label for="option1">
-								<!-- OPTION 1 HERE -->
-							</label>
-						</p>
-						<p>
-							<input name="option" type="radio" id="option2" value="Green"/>
-							<label for="option2">
-								<!-- OPTION 2 HERE -->
-							</label>
-						</p>
-						<p>
-							<input name="option" type="radio" id="option3" value="Blue"/>
-							<label for="option3">
-								<!-- OPTION 3 HERE -->
-							</label>
-						</p>
-						<p>
-							<input name="option" type="radio" id="option4" value="Yellow"/>
-							<label for="option4">
-								<!-- OPTION 4 HERE -->
-							</label>
-						</p>
-						</div>
-							<div style="margin-top: 2rem;">
-								<div class="center">
-									<a class="changeQuestion btn btn-floating waves-effect waves-light red left z-depth-4" data-direction="-1">&laquo;</a>
-									<button type="submit" class="btn waves-effect waves-light red z-depth-4" {% if has_completed %}disabled{% endif %}>Submit</button>
-									<button id="clearResponseBtn" class="btn waves-effect waves-light red z-depth-4" {% if has_completed %}disabled{% endif %}>Clear</button>
-									<a class="changeQuestion btn btn-floating waves-effect waves-light red right z-depth-4" data-direction="1">&raquo;</a>
-								</div>
+					<div class="row">
+						<div class="card-panel z-depth-4" style="">
+							<div class="progress">
+								<div class="indeterminate"></div>
 							</div>
-						</form>
+							<div class="mainContent">			  
+								<p id="questionData">
+									<!-- QUESTION HERE -->
+								</p>
+								<form id="submitResponse" action="POST" data-url="" data-qno="">
+									<div style="margin-top: 2rem">
+										<p>
+											<input name="option" type="radio" id="option1" value="Red"/>
+											<label for="option1">
+												<!-- OPTION 1 HERE -->
+											</label>
+										</p>
+										<p>
+											<input name="option" type="radio" id="option2" value="Green"/>
+											<label for="option2">
+												<!-- OPTION 2 HERE -->
+											</label>
+										</p>
+										<p>
+											<input name="option" type="radio" id="option3" value="Blue"/>
+											<label for="option3">
+												<!-- OPTION 3 HERE -->
+											</label>
+										</p>
+										<p>
+											<input name="option" type="radio" id="option4" value="Yellow"/>
+											<label for="option4">
+												<!-- OPTION 4 HERE -->
+											</label>
+										</p>
+									</div>
+									<div style="margin-top: 2rem;">
+										<style>
+											.changeQuestion,#clearResponseBtn,.submitBtn {
+												font-size:0.8rem;
+												margin:1%;
+											}
+										</style>
+										<div class="row">
+											<div class="col s12 center">
+												<button type="submit" class="submitBtn btn waves-effect waves-light red z-depth-4" {% if has_completed %}disabled{% endif %}>Submit</button>
+												<button id="clearResponseBtn" class="btn waves-effect waves-light red z-depth-4" {% if has_completed %}disabled{% endif %}>Clear</button>
+											</div>
+											<div class="col s12">
+												<a class="changeQuestion btn btn-floating waves-effect waves-light red left z-depth-4" data-direction="-1"><i class="material-icons">keyboard_arrow_left</i></a>
+												<a class="changeQuestion btn btn-floating waves-effect waves-light red right z-depth-4" data-direction="1"><i class="material-icons">keyboard_arrow_right</i></a>
+											</div>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
 					</div>
-			    </div>
-        </div>
+        		</div>
 			</div>
 		</div>
 	</div>
 </div>
 {% endblock content %}
 {% block scripts %}
+{% if has_completed %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+{% endif %}
 <script>
 	var questions = null;
 	$(document).ready(function() {
@@ -146,7 +134,7 @@
 					$(".giveFeedback").remove();
 					$("#rating").prop("disabled", true);
 					$(".feedbackMessage").html("Thanks for your response !");
-					$("#modal1").modal('close');
+					$("#feedbackModal").modal('close');
 					new PNotify({
 						text:"Feedback submitted",
 						type:"success"
@@ -265,8 +253,6 @@
 								$("#option"+i).parent().css('background-color', '#91ff91');
 							 }
 					 	}
-						// $(`input[value='${data.response}']`).parent().css('background-color', '#e25045');
-						// $(`input[value='${data.correct_answer}']`).parent().css('background-color', '#91ff91');						
 					}
 					$(".progress").hide(500);
 					$(".mainContent").css("filter","blur(0px)");
@@ -279,6 +265,32 @@
 				},
 			})
 		}
+		{% if has_completed %}
+		$.ajax({
+			method: 'GET',
+			url: "{% url 'quiz:score_chart' pk=testno %}",
+			success: function(data, textStatus, jqXHR) {
+				console.log(data);
+                var donutChart = new Chart(document.getElementById("score-donut"),{
+                    "type":"doughnut",
+                    "data":{
+                        "labels":["Correct", "Wrong", "Not attempted"],
+                        "datasets":[
+                            {
+                                "data":[data.correct_count,data.wrong_count,data.total - data.correct_count - data.wrong_count],
+                                "backgroundColor":data.colors,
+                            }
+                        ]
+                    },
+                    "options": {
+                    }
+                });
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+
+			}
+		});
+		{% endif %}
 		function handleFormError(jqXHR, textStatus, errorThrown) {
 			new PNotify({
 		    title: 'Oops! Reload Again',

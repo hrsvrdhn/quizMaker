@@ -78,17 +78,21 @@ class TestStat(models.Model):
 	
 	def get_wrong_response_count(self):
 		if self.has_completed:
-			return QuestionStat.objects.filter(question__in=self.test.questions.all(), candidate=self.candidate, is_correct=False).exclude(response=None).count()
+			return QuestionStat.objects.filter(question__in=self.test.questions.all(), candidate=self.candidate, is_correct=False, response__isnull=False).exclude(response__exact='').count()
+		return None
+	
+	def get_correct_response_count(self):
+		if self.has_completed:
+			return QuestionStat.objects.filter(question__in=self.test.questions.all(), candidate=self.candidate, is_correct=True).count()
 		return None
 	
 	def save(self, *args, **kwargs):
 		if self.has_completed:
 			self.score = QuestionStat.objects.filter(question__in=self.test.questions.all(), candidate=self.candidate, is_correct=True).count()
 			try:
-				self.score -= QuestionStat.objects.filter(question__in=self.test.questions.all(), candidate=self.candidate, is_correct=False).count() / self.test.negative_marking
+				self.score -= QuestionStat.objects.filter(question__in=self.test.questions.all(), candidate=self.candidate, is_correct=False, response__isnull=False).exclude(response__exact="").count() / self.test.negative_marking
 			except:
 				pass
-			self.score = round(self.score, 2)
 		super(TestStat, self).save(*args, **kwargs)
 
 	def __str__(self):

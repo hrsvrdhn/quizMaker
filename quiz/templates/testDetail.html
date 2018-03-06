@@ -95,7 +95,7 @@
                                     {{ teststat.candidate.user.extra_data.name }}
                                     </a>
                                 </td>
-                                <td>{{ teststat.score }}</td>                            
+                                <td>{{ teststat.score|floatformat:2 }}</td>                            
                             </tr>
                             {% endfor %}
                         </tbody>
