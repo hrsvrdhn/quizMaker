@@ -1,30 +1,18 @@
 {% extends 'account/base.html' %}
 
 {% block content %}
-<!-- MODAL STARTS  -->
-<div id="modal1" class="modal modal-fixed-footer">
-  <form class="ajax-question-form" action="." data-url="{% url 'quiz:addQuestionForm' pk=test.pk %}" data-method="POST">
-  	<div class="modal-content">
-    	<h4 id="modal-title">Add Question</h4>
-    	<div class="input_field">
-    		{%csrf_token%}
-    		{{ qform.as_p }}
-    	</div>
-	</div>
-  	<div class="modal-footer">
-    	<button id="modal-close" type="button" class="modal-action modal-close waves-effect waves-green btn" data-dismiss="modal">Close</button>
-    	<button type="submit" id="questionSaveButton" class="waves-effect waves-green btn">Add</button>
-  	</div>
-  </form>
-</div>
-<!-- MODAL ENDS -->
+{% include 'modals/addQuestionModal.html' %}
 <div style="margin: 2%">
 <!-- TEST DETAIL STARTS -->
 	<div class="row">
-		<div class="col s12 l12 grey-text text-darken-4">
-			<h5>{{test.name}}</h5>
-			<hr>
+		<div class="col s10 l10 grey-text text-darken-4 ">
+			<h5 class="truncate">{{test.name}}</h5>
 		</div>
+		{% if not test.publish %}
+		<div class="col s2 l2">
+			<button class="btn-floating red right deleteConfirm"><i class="material-icons">delete_forever</i></button>
+		</div>
+		{% endif %}
 	</div>
 	<div class="row">
 		<div class="col s12 l3 grey-text text-darken-3">
@@ -33,8 +21,7 @@
 		<div class="col s12 l3 grey-text text-darken-3">
 			<span class="grey-text text-darken-2">Negative marking: </span>{% if test.negative_marking %}1/{{test.negative_marking}}{% else %}None{% endif %}
 		</div>
-
-		<div class="col s12 l2 offset-l2 right-align">
+		<div class="col s12 l2 offset-l2 right-align" st>
 			<button data-url="{% url 'quiz:togglepublish' pk=test.pk %}" class="btn togglepublish" {% if test.publish %}disabled{% endif %} style="font-size:0.8rem" style="margin: 1%">
 				<i class="material-icons left">visibility</i>Publish
 			</button>
@@ -51,7 +38,6 @@
 			</button>
 		</div>
 	</div>
-</div>
 	
 	<div class="row" style="padding: 1%">
 		<div class="col s12 l12">
@@ -59,21 +45,22 @@
 			<div class="chips tooltipped"></div>
 		</div>
 	</div>
-<!-- TEST DETAIL ENDS -->
-<div class="card" style="padding: 1%">		
-<div class="row">
-	<div class="col s12 l12" style="padding: 1%">
-		<span class="left">
-			<h5>Questions</h5>
-		</span>
-		<span class="right">
-			<a id="add-new-question" class="waves-effect waves-light btn-floating red center" href="#" onclick="$('#modal1').modal('open');" {% if test.publish %}disabled{% endif %}><i class="material-icons">note_add</i></a>					
-		</span> 
+	<!-- TEST DETAIL ENDS -->
+	<div class="card" style="padding: 1%">		
+		<div class="row">
+			<div class="col s12 l12" style="padding: 1%">
+				<span class="left">
+					<h5>Questions</h5>
+				</span>
+				<span class="right">
+					<a id="add-new-question" class="waves-effect waves-light btn-floating red center" href="#" onclick="$('#modal1').modal('open');" {% if test.publish %}disabled{% endif %}><i class="material-icons">note_add</i></a>					
+				</span> 
+			</div>
+		</div>
+		<div id="questionList" class="row">
+			<!-- to be filled with questions -->
+		</div>
 	</div>
-</div>
-<div id="questionList" class="row">
-	<!-- to be filled with questions -->
-</div>
 </div>
 {% endblock content %}
 {% block scripts %}
@@ -249,6 +236,40 @@
 				}
 			});
 		});
+		$(".deleteConfirm").click(function(event) {
+			new PNotify({
+				title: 'Confirmation',
+				text: 'Are you sure you want to delete the test?',
+				icon: 'glyphicon glyphicon-question-sign',
+				type: 'error',
+				hide: false,
+				confirm: {
+					confirm: true
+				},
+				buttons: {
+					closer: false,
+					sticker: false
+				},
+				history: {
+					history: false
+				},
+				}).get().on('pnotify.confirm', function(){
+					$.ajax({
+						method: 'DELETE',
+						url: "{% url 'quiz:deleteTest' pk=test.pk %}",
+						success: function(data, textStatus, jqXHR) {
+							window.location.href = "{% url 'quiz:mytest' %}";
+						},
+						error: function(jqXHR, textStatus, errorThrown) {
+							new PNotify({
+								text:'Error! Test cannot be deleted',
+								type: 'error',
+							});
+						}
+					});
+				}).on('pnotify.cancel', function(){
+			});
+		})
 		$('#add-new-question').click(function(event) {
 				console.log("Add Question");
 				$('.ajax-question-form').trigger("reset");
@@ -329,7 +350,7 @@
 		function refreshQuestionList(data) {
 			$("#questionList").empty();
 			data.forEach(function(question, index) {
-				var content = `<div class="card horizontal z-depth-2 questioncard" style="padding:1%"><div class="col s12 l12"><span class="left">${question.question}</span>`; 
+				var content = `<div class="card horizontal z-depth-2 questioncard" style="padding:1%;margin:1%"><div class="col s12 l12"><span class="left">${question.question}</span>`; 
 				
 				if($(".togglepublish").prop("disabled") === false) {
 					content += `<form class="deleteQuestion" data-url="${question.update_url}"><button type="submit" class="btn-floating waves-effect red right z-depth-3" style="margin-left:1%"><i class="material-icons">delete_forever</i></button></form>`;

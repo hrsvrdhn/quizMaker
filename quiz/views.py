@@ -179,11 +179,12 @@ def QuestionStatForm(request, qpk):
 			print(e)
 			return Response()
 	else:
-		user_response = request.POST.get('option', None)
 		if teststat.has_completed:
 			return Response(status=HTTP_400_BAD_REQUEST)
+		user_response = request.POST.get('option', None)
 		questionstat, created = QuestionStat.objects.get_or_create(question=question, candidate=user_profile)
-		questionstat.response = user_response
+		if user_response:
+			questionstat.response = user_response
 		questionstat.save()
 		return Response(status=status.HTTP_201_CREATED)
 
@@ -394,3 +395,13 @@ def allTests(request):
 		}
 		context["user_context"] = user_context
 	return render(request, "alltest.html", context)
+
+@api_view(['DELETE'])
+def deleteTest(request, pk):
+	if request.user.is_authenticated:
+		user_profile = get_object_or_404(UserProfile, user__user=request.user)
+		test = get_object_or_404(Test, pk=pk, owner=user_profile)
+		if not test.publish:
+			test.delete()
+			return Response(status=status.HTTP_204_NO_CONTENT)
+	return Response(status=status.HTTP_404_NOT_FOUND)

@@ -18,10 +18,12 @@ urlpatterns = [
 	re_path(r'^ajax/(?P<pk>[0-9]+)/questions$', views.getQuestionList, name="getQuestions"),
 	re_path(r'^ajax/(?P<qpk>[0-9]+)/response$', views.QuestionStatForm, name="QuestionStatForm"),
 	re_path(r'^ajax/(?P<pk>[0-9]+)/publish$', views.ToggleTestPublish, name="togglepublish"),
+	re_path(r'^ajax/(?P<pk>[0-9]+)/delete$', views.deleteTest, name="deleteTest"),	
 	re_path(r'^ajax/(?P<pk>[0-9]+)/activate$', views.ToggleTestActive, name="toggleactive"),
 	re_path(r'^ajax/(?P<pk>[0-9]+)/feedback$', views.testFeedback, name="testfeedback"),
 	re_path(r'^ajax/test/recommended$', views.RecommendedTest, name="recommended_list"),	
 	re_path(r'^ajax/test/popular$', views.MostPopularTest, name="most_popular"),	
 	re_path(r'^ajax/test/new$', views.NewTest, name="new_test"),
 	re_path(r'^ajax/test/(?P<pk>[0-9]+)/score_distribution$', views.score_distribution, name="score_distribution"),
+
 ]	

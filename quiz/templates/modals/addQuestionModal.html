@@ -1,0 +1,15 @@
+<div id="modal1" class="modal modal-fixed-footer">
+    <form class="ajax-question-form" action="." data-url="{% url 'quiz:addQuestionForm' pk=test.pk %}" data-method="POST">
+        <div class="modal-content">
+            <h4 id="modal-title">Add Question</h4>
+            <div class="input_field">
+                {%csrf_token%}
+                {{ qform.as_p }}
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="modal-close" type="button" class="modal-action modal-close waves-effect waves-green btn" data-dismiss="modal">Close</button>
+            <button type="submit" id="questionSaveButton" class="waves-effect waves-green btn">Add</button>
+        </div>
+    </form>
+</div>

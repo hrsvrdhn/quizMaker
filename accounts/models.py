@@ -71,11 +71,11 @@ class UserProfile(models.Model):
         return self.questionstat.filter(question__test__attempts__has_completed=True, is_correct=True).distinct().count()
     
     def get_wrong_response_count(self):
-        return self.questionstat.filter(question__test__attempts__has_completed=True, is_correct=False).distinct().count()
+        return self.questionstat.filter(question__test__attempts__has_completed=True, is_correct=False, response__isnull=False).exclude(response__exact="").distinct().count()
     
     def get_accuracy(self):
         try:
-            return round(self.get_correct_response_count() / self.get_attempts_count(),2)*100
+            return round(self.get_correct_response_count()* 100 / self.get_attempts_count(),2)
         except:
             return None
 

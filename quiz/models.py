@@ -103,7 +103,7 @@ class TestStat(models.Model):
 class QuestionStat(models.Model):
 	question = models.ForeignKey(Question, related_name="question_history", null=True, on_delete=models.SET_NULL)
 	candidate = models.ForeignKey(UserProfile, related_name='questionstat', null=True, on_delete=models.CASCADE)	
-	response = models.CharField(max_length=500, null=True)
+	response = models.CharField(max_length=500, blank=True)
 	is_correct = models.BooleanField(default=False)
 
 	def save(self, *args, **kwargs):
