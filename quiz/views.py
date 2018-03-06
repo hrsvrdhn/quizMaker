@@ -294,6 +294,7 @@ def testDetail(request, pk):
 	context = {
 		'test': test,
 		'teststats': teststats,
+		'meta_application_name': test.name+'|',
 	}
 	if request.user.is_authenticated:
 		user_profile = get_object_or_404(UserProfile, user__user=request.user)

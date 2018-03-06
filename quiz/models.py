@@ -11,12 +11,6 @@ from accounts.models import UserProfile
 class TestManager(models.Manager):
 	def recommended(self, user):
 		return self.get_queryset().filter(topics__in=user.topics.all()).distinct().exclude(owner=user).exclude(attempts__in=TestStat.objects.filter(candidate=user)).distinct()
-		# recommended_list = []
-		# self.get_queryset.filter(publish=True, is_active=True).exclude(owner=user, teststats)
-		# for test in self.get_queryset().filter(publish=True, is_active=True):
-		# 	if test.owner != user and test.topics.all().intersection(user.topics.all()).count() >= 1 and not TestStat.objects.filter(test=test, candidate=user).exists():
-		# 		recommended_list.append(test)
-		# return recommended_list
 
 class Test(models.Model):
 	name = models.CharField(max_length=500, blank=False, default="Sample Test")
