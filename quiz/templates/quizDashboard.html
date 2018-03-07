@@ -9,7 +9,7 @@
 		  <ul id="questionButtons" class="collection" style="display: block; overflow-y: scroll; height: 100vh;">
 				<!-- To be filled by buttons -->
 				{% for i in no_of_questions %}
-				<li class="collection-item"><button type="button" class="questionButton btn-floating btn waves-effect waves-light red" data-no="{{i}}">{{ i|add:"1" }}</button></li>
+				<li class="collection-item"><button type="button" class="questionButton btn-floating btn waves-effect waves-light blue" data-no="{{i}}">{{ i|add:"1" }}</button></li>
 				{% endfor %}
 		  </ul>
 		</div>
@@ -17,7 +17,7 @@
 			<div class="row">
 				{% if has_completed %}
 					<div class="col left">
-						<a class="btn waves-effect waves-light red z-depth-3 modal-trigger" data-target="scoreModal"><span class="right">Score:{{ score }}</span><span class="left"><i class="material-icons">pie_chart</i></span></a>
+						<a class="btn waves-effect waves-light blue z-depth-3 modal-trigger" data-target="scoreModal"><span class="right">Score:{{ score }}</span><span class="left"><i class="material-icons">pie_chart</i></span></a>
 					</div>
 				{% endif %}
 				<div class="col right">
@@ -26,7 +26,7 @@
 					{% else %}
 					<form id="endQuizForm" method="POST" data-tno="{{ testno }}" action="{% url 'quiz:endQuiz' pk=testno %}">
 						{% csrf_token %}
-						<button type="button" class="btn waves-effect waves-light red endQuizButton  z-depth-3">End Quiz</a>
+						<button type="button" class="btn waves-effect waves-light red accent-4 endQuizButton z-depth-3">End Quiz</a>
 					</form>
 					{% endif %}
 				</div>
@@ -46,25 +46,25 @@
 									<div style="margin-top: 2rem">
 										<p>
 											<input name="option" type="radio" id="option1" value="Red"/>
-											<label for="option1">
+											<label for="option1" class="grey-text text-darken-4">
 												<!-- OPTION 1 HERE -->
 											</label>
 										</p>
 										<p>
 											<input name="option" type="radio" id="option2" value="Green"/>
-											<label for="option2">
+											<label for="option2" class="grey-text text-darken-4">
 												<!-- OPTION 2 HERE -->
 											</label>
 										</p>
 										<p>
 											<input name="option" type="radio" id="option3" value="Blue"/>
-											<label for="option3">
+											<label for="option3" class="grey-text text-darken-4">
 												<!-- OPTION 3 HERE -->
 											</label>
 										</p>
 										<p>
 											<input name="option" type="radio" id="option4" value="Yellow"/>
-											<label for="option4">
+											<label for="option4" class="grey-text text-darken-4">
 												<!-- OPTION 4 HERE -->
 											</label>
 										</p>
@@ -78,12 +78,12 @@
 										</style>
 										<div class="row">
 											<div class="col s12 center">
-												<button type="submit" class="submitBtn btn waves-effect waves-light red z-depth-4" {% if has_completed %}disabled{% endif %}>Submit</button>
+												<button type="submit" class="submitBtn btn waves-effect waves-light green z-depth-4" {% if has_completed %}disabled{% endif %}>Submit</button>
 												<button id="clearResponseBtn" class="btn waves-effect waves-light red z-depth-4" {% if has_completed %}disabled{% endif %}>Clear</button>
 											</div>
 											<div class="col s12">
-												<a class="changeQuestion btn btn-floating waves-effect waves-light red left z-depth-4" data-direction="-1"><i class="material-icons">keyboard_arrow_left</i></a>
-												<a class="changeQuestion btn btn-floating waves-effect waves-light red right z-depth-4" data-direction="1"><i class="material-icons">keyboard_arrow_right</i></a>
+												<a class="changeQuestion btn btn-floating waves-effect waves-light blue left z-depth-4" data-direction="-1"><i class="material-icons">keyboard_arrow_left</i></a>
+												<a class="changeQuestion btn btn-floating waves-effect waves-light blue right z-depth-4" data-direction="1"><i class="material-icons">keyboard_arrow_right</i></a>
 											</div>
 										</div>
 									</div>

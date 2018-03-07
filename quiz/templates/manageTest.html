@@ -4,7 +4,7 @@
 {% include 'modals/addQuestionModal.html' %}
 <div style="margin: 2%">
 <!-- TEST DETAIL STARTS -->
-	<div class="row">
+	<div class="row" style="padding: 1%">
 		<div class="col s10 l10 grey-text text-darken-4 ">
 			<h5 class="truncate">{{test.name}}</h5>
 		</div>
@@ -14,7 +14,7 @@
 		</div>
 		{% endif %}
 	</div>
-	<div class="row">
+	<div class="row" style="padding: 1%">
 		<div class="col s12 l3 grey-text text-darken-3">
 			<span class="grey-text text-darken-2">Added on: </span>{{test.created_on|date}}
 		</div>	
@@ -22,12 +22,12 @@
 			<span class="grey-text text-darken-2">Negative marking: </span>{% if test.negative_marking %}1/{{test.negative_marking}}{% else %}None{% endif %}
 		</div>
 		<div class="col s12 l2 offset-l2 right-align" st>
-			<button data-url="{% url 'quiz:togglepublish' pk=test.pk %}" class="btn togglepublish" {% if test.publish %}disabled{% endif %} style="font-size:0.8rem" style="margin: 1%">
+			<button data-url="{% url 'quiz:togglepublish' pk=test.pk %}" class="btn togglepublish blue" {% if test.publish %}disabled{% endif %} style="font-size:0.8rem" style="margin: 1%">
 				<i class="material-icons left">visibility</i>Publish
 			</button>
 		</div>
 		<div class="col s12 l2 right-align">
-			<button style="font-size:0.8rem" class="btn btn-toggleactive" {% if not test.publish %}disabled{% endif %}>
+			<button style="font-size:0.8rem" class="btn btn-toggleactive {% if test.is_active %}green{% else %}red{% endif %}" {% if not test.publish %}disabled{% endif %}>
 				<div class="switch">
 					Active
 					<label>
@@ -222,6 +222,11 @@
 				url: "{% url 'quiz:toggleactive' pk=test.pk %}",
 				success: function(data, textStatus, jqXHR) {
 					console.log(data);
+					if(data.active === true) {
+						$(".btn-toggleactive").toggleClass("red").toggleClass("green")
+					} else {
+						$(".btn-toggleactive").toggleClass("green").toggleClass("red");						
+					}
 					new PNotify({
 						title:'Done!',
 						type: 'success'

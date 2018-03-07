@@ -2,23 +2,23 @@
     <div class="modal-content" style="padding:0%">
         <nav class="website-theme">
             <div class="nav-wrapper">
-                <div class="left col s8 m5 l5">
+                <div class="left col s8 m5 l5 grey-text text-darken-4" style="margin-left:2%">
                     <ul>
-                    <li><a href="#!" class="email-type">Rate this test</a></li>
+                    <li style="font-size:1.3rem">Rate this test</li>
                     </ul>
                 </div>
                 <div class="col s4 m7 l7">
                     <ul class="right">
                         {% if not feedback %}
-                        <li><a href="#!" class="giveFeedback"><i class="modal-action modal-close material-icons">send</i></a></li>
+                        <li><a href="#!" class="giveFeedback"><i class="modal-action modal-close material-icons grey-text text-darken-4">send</i></a></li>
                         {% endif %}  
-                        <li><a href="#!"><i class="modal-action modal-close material-icons">clear</i></a></li>
+                        <li><a href="#!"><i class="modal-action modal-close material-icons red-text text-accent-4">clear</i></a></li>
                     </ul>
                 </div>
             </div>
         </nav>
         <div class="row">
-            <div class="col s10 l8 offset-s1 offset-l2">
+            <div class="col s10 l8 offset-s1 offset-l2 grey-text text-darken-4">
                 <p class="range-field">
                     <input type="range" id="rating" min="0" max="5" {% if feedback %} value="{{ feedback }}" disabled {% endif %}/>
                 </p>

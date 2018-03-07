@@ -27,17 +27,20 @@
         flex: 1 0 auto;
       }
       .navbarbutton {
-        background-color: #02ccba;
+        background-color: #1b61f7;
         font-size: 0.7rem;
       }
       .website-theme {
-        background-color: #9575cd;
+        background-color: #FFF;
       }
       .btn {
         border-radius: 4%;
       }
       .btn-floating {
         border-radius: 50%;
+      }
+      .footer-head {
+        font-size: 1.5rem;
       }
     </style>
     {% block styles %}
@@ -47,25 +50,25 @@
     <header>
     <nav class="website-theme">
       <div class="nav-wrapper" style="margin-left:1rem;margin-right:1rem">
-        <a href="/" class="brand-logo">QuizMaker</a>
-        <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+        <a href="/" class="brand-logo grey-text text-darken-4"><strong>QuizMaker</strong></a>
+        <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons grey-text text-darken-4">menu</i></a>
         <ul class="right hide-on-med-and-down">
-          <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="{% url 'quiz:mytest' %}">My Tests<i class="material-icons left">receipt</i></a></li>          
-          <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="{% url 'quiz:alltest' %}">All Tests<i class="material-icons left">receipt</i></a></li>
-          <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="{% url 'user:myprofile' %}">My Profile <i class="material-icons left">account_box</i></a></li>
+          <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton blue" href="{% url 'quiz:mytest' %}">My Tests<i class="material-icons left">receipt</i></a></li>          
+          <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton blue" href="{% url 'quiz:alltest' %}">All Tests<i class="material-icons left">receipt</i></a></li>
+          <li><a class="waves-effect waves-light btn z-depth-3 navbarbutton blue" href="{% url 'user:myprofile' %}">My Profile <i class="material-icons left">account_box</i></a></li>
           <li>
             {% if request.user.is_authenticated %}
             <form method="post" action="{% url 'account_logout' %}">
               {% csrf_token %}
-              <a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="#" onclick="this.parentNode.submit(); return false;">Logout<i class="material-icons left">input</i></a>
+              <a class="waves-effect waves-light btn z-depth-3 navbarbutton blue" href="#" onclick="this.parentNode.submit(); return false;">Logout<i class="material-icons left">input</i></a>
             </form>
             {% else %}
-            <a class="waves-effect waves-light btn z-depth-3 navbarbutton" href="{% url 'account_login' %}">Login<i class="material-icons left">input</i></a>
+            <a class="waves-effect waves-light btn z-depth-3 navbarbutton blue" href="{% url 'account_login' %}">Login<i class="material-icons left">input</i></a>
             {% endif %}
           </li>
         </ul>
         <ul class="side-nav center" id="mobile-demo">
-          <li><div class="user-view" style="background-color:#9575cd">
+          <li><div class="user-view">
               <a href="{% url 'user:myprofile' %}">
                 {% if user_context.profile_pic %}
                 <img class="circle" style="margin:auto" src="{{ user_context.profile_pic }}">
@@ -73,7 +76,7 @@
                 <i class="medium material-icons">account_circle</i>
                 {% endif %}
               </a>
-              <a href="#!name"><span class="name white-text"><h5>Hello,{{ user_context.name|default:"Anonymous" }}</h5></span></a>
+              <a href="#!name"><span class="name grey-text text-darken-4"><h5>Hello,{{ user_context.name|default:"Anonymous" }}</h5></span></a>
           </div></li>
           <li><div class="divider"></div></li>
           <li><a href="{% url 'quiz:mytest' %}">My Tests</a></li><hr/>          
@@ -97,37 +100,37 @@
     {% block content %}
     {% endblock content %} 
   </main>
-  <footer class="page-footer website-theme">
+  <footer class="page-footer website-theme z-depth-4">
   <div class="container">
     <div class="row">
       <div class="col l3 s6 hide-on-med-and-down">
-        <h5 class="white-text">QuizMaker</h5>
-        <p class="grey-text text-lighten-4">An interactive way to make and take quizes.</p>
+        <p class="grey-text text-darken-4 footer-head"><strong>QUIZMAKER</strong></p>
+        <p class="grey-text text-darken-3">An interactive way to make and take quizes.</p>
       </div>
       <div class="col l3 offset-l2 s6">
-        <h5 class="white-text">Social Links</h5>
+        <p class="grey-text text-darken-4 footer-head"><strong>WE ARE SOCIAL</strong></p>
         <ul>
-          <li><a class="grey-text text-lighten-3" href="#!">Facebook</a></li>
-          <li><a class="grey-text text-lighten-3" href="#!">Google +</a></li>
-          <li><a class="grey-text text-lighten-3" href="#!">Twitter</a></li>
+          <li><a class="grey-text text-darken-3" href="#!">Facebook</a></li>
+          <li><a class="grey-text text-darken-3" href="#!">Google +</a></li>
+          <li><a class="grey-text text-darken-3" href="#!">Twitter</a></li>
         </ul>
       </div>
       <div class="col l3 offset-l1 s6">
         {% include "modals/websiteFeedbackModal.html" %}      
-        <h5 class="white-text">Suggestions?</h5>
-        <p class="grey-text text-lighten-3">
+        <p class="grey-text text-darken-4 footer-head"><strong>FEEDBACK</strong></p>
+        <p class="grey-text text-darken-3">
           This is YOUR site, so if you have got any suggestions, complaints, feedback on how we can improve if for you, please let us know. We do our best to keep up!.<br>
         </p>
         <p>          
-          <a class="white-text" href="#" onclick="$('#websiteFeedbackModal').modal('open');"><strong>Give your feedback</strong></a>
+          <a class="grey-text text-darken-4" href="#" onclick="$('#websiteFeedbackModal').modal('open');"><strong>Give your feedback</strong></a>
         </p>
       </div>
     </div>
   </div>
   <div class="footer-copyright">
     <div class="container">
-    © 2017 Copyright Text
-    <a class="grey-text text-lighten-4 right" href="#!">Made by <b>Harsh Vardhan Sharma</b></a>
+    <span class="grey-text text-darken-3">© 2017 Copyright Text</span>
+    <a class="grey-text text-darken-3 right" href="#!">Made by <strong>Harsh Vardhan Sharma</strong></a>
     </div>
   </div>
 </footer>
