@@ -1,15 +1,31 @@
 <div id="modal1" class="modal modal-fixed-footer">
     <form class="ajax-question-form" action="." data-url="{% url 'quiz:addQuestionForm' pk=test.pk %}" data-method="POST">
-        <div class="modal-content">
-            <h4 id="modal-title">Add Question</h4>
-            <div class="input_field">
-                {%csrf_token%}
-                {{ qform.as_p }}
+        <div class="modal-content" style="padding:0%">
+        <nav class="website-theme">
+                <div class="nav-wrapper">
+                    <div class="left col s8 m5 l5 grey-text text-darken-4" style="margin-left:2%">
+                        <ul>
+                            <li style="font-size:1.3rem">Add Question</li>
+                        </ul>
+                    </div>
+                    <div class="col s4 m7 l7">
+                        <ul class="right">
+                            <li><a href="#!"><i class="modal-action modal-close material-icons red-text text-accent-4">clear</i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <div class="row" style="padding:2%">
+                <div class="col s12">
+                    <div class="input_field">
+                        {%csrf_token%}
+                        {{ qform.as_p }}
+                    </div>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
-            <button id="modal-close" type="button" class="modal-action modal-close waves-effect waves-green btn" data-dismiss="modal">Close</button>
-            <button type="submit" id="questionSaveButton" class="waves-effect waves-green btn">Add</button>
+            <button type="submit" id="questionSaveButton" class="waves-effect waves-green btn green">Add</button>
         </div>
     </form>
 </div>
