@@ -1,8 +1,25 @@
 <html>
     <head>
-        <title>Not found</title>
+        <title>QuizMaker | Not Found</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
     </head>
     <body>
-        <h1>Page not found</h1>
+        <div class="container" style="margin-top:10%">
+            <div class="row">
+                <div class="col s12">
+                    <h2 class="center"><strong>QuizMaker</strong></h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <h3 class="center">What the 404!</h3>
+                </div>
+            </div>    
+            <div class="row">
+                <div class="col s12">
+                    <h5 class="center"><a href="{% url 'quiz:home' %}">Home</a></h5>
+                </div>
+            </div>     
+        </div>
     </body>
 </html>
