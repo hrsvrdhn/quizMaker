@@ -14,15 +14,15 @@
             <div class="row">
                 <div class="col s8 l4 offset-s2">
                         <h3 class="card-title grey-text text-darken-4" style="font-size:2.2rem">{{ profile.user.extra_data.name }}</h3>
-                        <span class=" grey-text text-darken-2"></span>                                       
+                        <span class="grey-text text-darken-2"></span>                                       
                     </div>
                     <div class="col s6 l2 center-align">
                         <h3 class="card-title grey-text text-darken-4">{{ profile.get_total_tests_taken }}</h3>
-                        <span class=" grey-text text-darken-2">Tests Taken</span>                        
+                        <span class="grey-text text-darken-2">Tests Taken</span>                        
                     </div>
                     <div class="col s6 l2 center-align">
                         <h3 class="card-title grey-text text-darken-4">{{ profile.get_accuracy }}%</h3>
-                        <span class=" grey-text text-darken-2">Accuracy</span>                        
+                        <span class="grey-text text-darken-2">Accuracy</span>                        
                     </div>
                 </div>
             </div>
@@ -186,17 +186,24 @@
                     }
                     data.follow.forEach((element, index) => {
                         $(".followingCollection").append(`
-                            <li class="collection-item" style="height:60px">
-                                <a href="${element.profile_url}">${element.name}</a>
-                                <a href="${element.follow_url}" class="btn white-text blue secondary-content" style="font-size:0.8rem">follow</a>
+                            <li class="collection-item valign-wrapper" style="height:60px;padding:0%">
+                                <div class="col s6">
+                                    <a href="${element.profile_url}">${element.name}</a>
+                                </div>    
                             </li>
                         `);
                     });
                     data.unfollow.forEach((element, index) => {
                         $(".followingCollection").append(`
-                            <li class="collection-item" style="height:60px">
-                                <a href="${element.profile_url}">${element.name}</a>
-                                <a href="${element.follow_url}" class="btn white-text blue secondary-content" style="font-size:0.8rem">Unfollow</a>
+                            <li class="collection-item valign-wrapper" style="height:60px;padding:0%">
+                                <div class="col s6">
+                                    <a class="truncate" href="${element.profile_url}">${element.name}</a>
+                                </div>
+                                <div class="col s6">
+                                    <a href="#" class="secondary-content" style="font-size:0.7rem">
+                                    <span class="badge white-text blue">Following</span>
+                                    </a>
+                                </div>
                             </li>
                         `);
                     });

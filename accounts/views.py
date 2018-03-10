@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import UserProfile, WebFeedback
+from .forms import EmailTestForm
 from .serializers import WebFeedbackSerializer, TopScorerSerializer, UserFollowingSerializer
 from .utils import following_email
 from topic.models import Topic
@@ -61,7 +62,8 @@ def myProfile(request):
 
 def Profile(request, username=None):
     profile = get_object_or_404(UserProfile, user__user__username=username)
-    owner = user_context = False
+    owner = False
+    user_context = {}
     try:
         r = requests.get(profile.user.get_avatar_url()).url
     except:
@@ -131,3 +133,18 @@ def UserFollowing(request, username):
     serializer_following = UserFollowingSerializer(following, many=True)
     serializer_follow = UserFollowingSerializer(follow, many=True)    
     return Response({ "logged_user":logged_user, "follow":serializer_follow.data, "unfollow":serializer_following.data }, status=status.HTTP_200_OK)
+
+@require_http_methods(['GET', 'POST'])
+def TestPromotion(request):
+    if not request.user.is_superuser:
+        raise Http404
+    if request.method == 'GET':
+        form = EmailTestForm()
+        return render(request, 'testpromotion.html', {'form': form})
+    else:
+        form = EmailTestForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data)
+        return render(request, 'testpromotion.html', {'form': form})
+        
+        
