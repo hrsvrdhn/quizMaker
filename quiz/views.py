@@ -199,7 +199,10 @@ def takeQuiz(request, pk):
 	teststat, created = TestStat.objects.get_or_create(test=test, candidate=user_profile)
 	has_completed = teststat.has_completed	
 	no_of_questions = Question.objects.filter(test=test).count()
-	score = teststat.score
+	if teststat.score:
+		score = round(teststat.score, 2)
+	else:
+		score = 0
 	try:
 		feedback = Feedback.objects.get(test=test, candidate=user_profile)
 		feedback = feedback.rating
@@ -216,7 +219,7 @@ def takeQuiz(request, pk):
 	}
 	context = {
 		'testno': test.id,
-		'score': round(score,2),	
+		'score': 0,	
 		'has_completed': has_completed,
 		'no_of_questions': range(no_of_questions),
 		'feedback': feedback,
