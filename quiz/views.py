@@ -219,7 +219,7 @@ def takeQuiz(request, pk):
 	}
 	context = {
 		'testno': test.id,
-		'score': 0,	
+		'score': score,	
 		'has_completed': has_completed,
 		'no_of_questions': range(no_of_questions),
 		'feedback': feedback,
