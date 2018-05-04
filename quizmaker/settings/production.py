@@ -152,7 +152,7 @@ MANAGERS = ADMINS # FOR BROKEN LINKS NOTIFICATIONS
 SOCIALACCOUNT_PROVIDERS = {
     'facebook': {
         'METHOD': 'oauth2',
-        'SCOPE': ['email', 'public_profile', 'user_about_me'],
+        'SCOPE': ['email', 'public_profile'],
         'AUTH_PARAMS': {},#{'auth_type': 'reauthenticate'},
         'INIT_PARAMS': {'cookie': True},
         'FIELDS': [
