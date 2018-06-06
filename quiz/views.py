@@ -16,9 +16,11 @@ from rest_framework import status
 
 from accounts.models import UserProfile
 from topic.models import Topic
+from analytics.signals import object_viewed_signal
 from .forms import AddQuizForm, AddTestForm
 from .models import Test, Question, TestStat, QuestionStat, Feedback
 from .serializers import TestSerializer, QuestionSerializer, QuestionListSerializer, QuestionStatSerializer, CorrectAnswerSerialize, TestSerializerForHome
+
 
 def home(request):
 	print("Home")
@@ -316,6 +318,7 @@ def testDetail(request, pk):
 			'pageTitle': test.name,
 		}
 		context['user_context'] = user_context
+	object_viewed_signal.send(test.__class__, instance=test, request=request)
 	return render(request, 'testDetail.html', context)
 
 @login_required

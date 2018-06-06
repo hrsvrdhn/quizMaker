@@ -12,13 +12,15 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+from topic.models import Topic
+from topic.serializers import TopicSerializer
+from quiz.models import TestStat
+from analytics.signals import object_viewed_signal
+
 from .models import UserProfile, WebFeedback
 from .forms import EmailTestForm
 from .serializers import WebFeedbackSerializer, TopScorerSerializer, UserFollowingSerializer
 from .utils import following_email
-from topic.models import Topic
-from topic.serializers import TopicSerializer
-from quiz.models import TestStat
 # Create your views here.
 
 def NotFound(request, *args, **kwargs):
@@ -98,6 +100,7 @@ def Profile(request, username=None):
         'tests_taken': tests_taken,
         'user_context': user_context,
     }
+    object_viewed_signal.send(profile.__class__, instance=profile, request=request)
     return render(request, 'profile.html', context)
 
 @api_view(['POST'])

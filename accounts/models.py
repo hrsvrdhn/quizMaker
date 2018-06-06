@@ -6,11 +6,11 @@ from django.urls import reverse_lazy
 from django.conf import settings
 from django.db.models import Sum,Count
 
-from allauth.account.signals import user_logged_in
+from allauth.account.signals import user_logged_in, user_signed_up
 from allauth.socialaccount.models import SocialAccount
 
 from topic.models import Topic
-from .utils import web_feedback_email
+from .utils import web_feedback_email, new_user_signup_email
 # Create your models here.
 class UserProfileManager(models.Manager):
     use_for_related_fields = True
@@ -104,3 +104,13 @@ def user_logged_in(request, user, *args, **kwargs):
         print("New user")
     else:
         print("old user")
+
+# @receiver(user_signed_up)
+# def user_signed_up(request, user, *args, **kwargs):
+#     try:
+#         name = request.user.get_full_name()
+#         email_address = request.user.email
+#         new_user_signup_email(name, email_address)
+#     except:
+#         pass
+        
