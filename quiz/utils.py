@@ -21,3 +21,6 @@ def unique_slug_generator(instance, new_slug=None):
                 )
         return unique_slug_generator(instance, new_slug=new_slug)
     return slug
+
+def random_key_generator(size=10, digits='0987654321'):
+    return ''.join(random.choice(digits) for _ in range(size))

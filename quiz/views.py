@@ -5,7 +5,7 @@ from django.shortcuts import render, HttpResponse, get_object_or_404, HttpRespon
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.core import serializers
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 from django.utils.html import escape
 from django.utils import timezone
@@ -17,10 +17,12 @@ from rest_framework import status
 from accounts.models import UserProfile
 from topic.models import Topic
 from analytics.signals import object_viewed_signal
+
+
 from .forms import AddQuizForm, AddTestForm
 from .models import Test, Question, TestStat, QuestionStat, Feedback
 from .serializers import TestSerializer, QuestionSerializer, QuestionListSerializer, QuestionStatSerializer, CorrectAnswerSerialize, TestSerializerForHome
-
+from .utils import random_key_generator
 
 def home(request):
 	print("Home")
@@ -194,9 +196,10 @@ def QuestionStatForm(request, qpk):
 def takeQuiz(request, pk):
 	test = get_object_or_404(Test, pk=pk)
 	user_profile = get_object_or_404(UserProfile, user__user=request.user)	
+	token = request.GET.get('token', None)
 	if test.owner == user_profile:
 		return HttpResponseRedirect(reverse('quiz:manageTest', args=[pk]))
-	if not test.publish or (not test.is_active and not test.attempts.filter(candidate=user_profile).exists()):
+	if not test.publish or (not test.is_active and not test.attempts.filter(candidate=user_profile).exists()) or (test.private and not test.private_key == token):
 		raise Http404
 	teststat, created = TestStat.objects.get_or_create(test=test, candidate=user_profile)
 	has_completed = teststat.has_completed	
@@ -239,7 +242,7 @@ def endQuiz(request, pk):
 	teststat = get_object_or_404(TestStat, test=test, candidate=user_profile)
 	teststat.has_completed = True
 	teststat.save()
-	return HttpResponsePermanentRedirect(reverse('quiz:takeQuiz', args=[pk]))
+	return HttpResponsePermanentRedirect(test.get_test_taking_url())
 
 from topic.serializers import TopicSerializer
 @api_view(['POST'])
@@ -293,8 +296,26 @@ def ToggleTestActive(request, pk):
 			return Response({'active':test.is_active}, status=status.HTTP_200_OK)
 	return Response(status=status.HTTP_404_NOT_FOUND)
 
+@api_view(['PUT'])
+def ToggleTestPrivate(request, pk):
+	if request.user.is_authenticated:
+		user_profile = get_object_or_404(UserProfile, user__user=request.user)
+		test = get_object_or_404(Test, pk=pk, owner=user_profile)	
+		if not test.publish:
+			test.private = not test.private
+			if not test.private_key or len(test.private_key) == 0:
+				test.private_key = random_key_generator()
+				print("Private_key = ", test.private_key)
+			test.save()
+			return Response({'private':test.private}, status=status.HTTP_200_OK)
+	return Response(status=status.HTTP_404_NOT_FOUND)	
+
+@api_view(['GET'])
 def testDetail(request, pk):
 	test = get_object_or_404(Test, publish=True, pk=pk)
+	token = request.GET.get('token', None)
+	if test.private and not test.private_key == token:
+		return HttpResponseNotFound("Not found")
 	teststats = TestStat.objects.filter(test=test, has_completed=True).order_by('-score')
 	context = {
 		'test': test,
@@ -350,7 +371,7 @@ def RecommendedTest(request):
 def MostPopularTest(request):
 	if request.user.is_authenticated:
 		user_profile = get_object_or_404(UserProfile, user__user=request.user)		
-		most_popular = sorted(Test.objects.exclude(owner=user_profile).filter(publish=True, is_active=True), key=lambda x:x.get_attempts(), reverse=True)[:5]
+		most_popular = sorted(Test.objects.exclude(owner=user_profile).filter(publish=True, is_active=True, private=False), key=lambda x:x.get_attempts(), reverse=True)[:5]
 	else:
 		most_popular = sorted(Test.objects.filter(publish=True, is_active=True), key=lambda x:x.get_attempts(), reverse=True)[:5]
 	serializer = TestSerializerForHome(most_popular, many=True)
@@ -358,11 +379,12 @@ def MostPopularTest(request):
 
 @api_view(['GET'])
 def NewTest(request):
+	new_tests = Test.objects.filter(publish=True, is_active=True, private=False).order_by("-created_on")
 	if request.user.is_authenticated:
 		user_profile = get_object_or_404(UserProfile, user__user=request.user)
-		new_tests = Test.objects.exclude(owner=user_profile).filter(publish=True, is_active=True).order_by("-created_on")[:5]
-	else:
-		new_tests = Test.objects.filter(publish=True, is_active=True).order_by("-created_on")[:5]
+		new_tests = new_tests.exclude(owner=user_profile)
+	new_tests = new_tests[:5]
+
 	serializer = TestSerializerForHome(new_tests, many=True)
 	return Response(serializer.data, status=status.HTTP_200_OK)
 	
@@ -383,7 +405,7 @@ def score_distribution(requests, pk):
 def allTests(request):
 	topic = request.GET.get("topic", None)
 	topics = Topic.objects.all()
-	tests = Test.objects.filter(publish=True, is_active=True)
+	tests = Test.objects.filter(publish=True, is_active=True, private=False)
 	context = {
 		'topic': topic,
 		"topics": topics,

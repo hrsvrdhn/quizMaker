@@ -21,7 +21,7 @@
 		<div class="col s12 l3 grey-text text-darken-3">
 			<span class="grey-text text-darken-2">Negative marking: </span>{% if test.negative_marking %}1/{{test.negative_marking}}{% else %}None{% endif %}
 		</div>
-		<div class="col s12 l2 offset-l2 right-align" st>
+		<div class="col s12 l2 right-align" st>
 			<button data-url="{% url 'quiz:togglepublish' pk=test.pk %}" class="btn togglepublish blue" {% if test.publish %}disabled{% endif %} style="font-size:0.8rem" style="margin: 1%">
 				<i class="material-icons left">visibility</i>Publish
 			</button>
@@ -37,6 +37,17 @@
 				</div>
 			</button>
 		</div>
+		<div class="col s12 l2 right-align">
+			<button style="font-size:0.8rem" class="btn btn-toggleprivate {% if test.private %}red{% else %}blue{% endif %}" {% if test.publish %}disabled{% endif %}>
+				<div class="switch">
+					Private
+					<label>
+						<input class="toggleprivate" type="checkbox" {% if test.private %}checked{% endif %}>
+						<span class="lever"></span>
+					</label>
+				</div>
+			</button>
+		</div>
 	</div>
 	
 	<div class="row" style="padding: 1%">
@@ -45,6 +56,14 @@
 			<div class="chips tooltipped"></div>
 		</div>
 	</div>
+	{% if test.private %}
+		<div class="row" style="padding: 1%">
+			<div class="chip col s12 l12">
+				Private test URL = 	{% if settings.DEBUG %}localhost:8000{% else%}https://qzmaker.herokuapp.com{% endif %}{{ test.get_test_detail_url }}
+				<!-- <span class="right"><button class="btn">Copy</button></span> -->
+			</div>
+		</div>
+	{% endif %}
 	<!-- TEST DETAIL ENDS -->
 	<div class="card" style="padding: 1%">		
 		<div class="row">
@@ -167,7 +186,7 @@
 			if($("#questionList").is(":empty")) {
 				new PNotify({
 					title: 'Empty test!',
-					text: 'No one likes a empty test. Please add some questions.',
+					text: 'Nobody likes an empty test. Please add some questions.',
 					type: 'error',
 				});
 				return false;
@@ -234,6 +253,22 @@
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					$(".toggleactive").prop('checked', !$(".toggleactive").prop('checked'));
+					new PNotify({
+						title:'Operation Failed!',
+						type: 'error'
+					});
+				}
+			});
+		});
+		$(".toggleprivate").click(function(e) {
+			$.ajax({
+				method: 'PUT',
+				url: "{% url 'quiz:toggleprivate' pk=test.pk %}",
+				success: function(data, textStatus, jqXHR) {
+					window.location.reload();
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					$(".toggleprivate").prop('checked', !$(".toggleprivate").prop('checked'));
 					new PNotify({
 						title:'Operation Failed!',
 						type: 'error'

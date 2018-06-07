@@ -79,6 +79,7 @@ def Profile(request, username=None):
             owner = True
             user_profile_pic_url = r
         else:
+            tests_taken = tests_taken.exclude(test__private=True)
             try:
                 user_profile_pic_url = requests.get(user_profile.user.get_avatar_url()).url
             except:
@@ -89,6 +90,7 @@ def Profile(request, username=None):
         }
     else:
         following = False
+        tests_taken = tests_taken.exclude(private=True)
     user_context['pageTitle'] = profile.user.extra_data['name'], 
     context = {
         "profile": profile,

@@ -10,7 +10,7 @@ from accounts.models import UserProfile
 # Create your models here.
 class TestManager(models.Manager):
 	def recommended(self, user):
-		return self.get_queryset().filter(topics__in=user.topics.all()).distinct().exclude(owner=user).exclude(attempts__in=TestStat.objects.filter(candidate=user)).distinct()
+		return self.get_queryset().filter(topics__in=user.topics.all()).distinct().exclude(owner=user).exclude(private=True).exclude(attempts__in=TestStat.objects.filter(candidate=user)).distinct()
 
 class Test(models.Model):
 	name = models.CharField(max_length=500, blank=False, default="Sample Test")
@@ -22,18 +22,26 @@ class Test(models.Model):
 	is_active = models.BooleanField(default=False)
 	published_on = models.DateTimeField(null=True)
 	negative_marking = models.IntegerField(default=0, validators=[MinValueValidator(0)])
-
+	private = models.BooleanField(default=False)
+	private_key = models.CharField(max_length=200, blank=True, null=True)
+	
 	objects = TestManager()
-
+	
 	def get_test_taking_url(self):
-		return reverse('quiz:takeQuiz', args=[self.pk])
+		url = reverse('quiz:takeQuiz', args=[self.pk])
+		if self.private:
+			url = "{}?token={}".format(url,self.private_key)
+		return url
 
 	def get_absolute_url(self):
 		return reverse('quiz:manageTest', args=[self.id])
 	
 	def get_test_detail_url(self):
-		return reverse('quiz:testDetail', args=[self.id])
-
+		url = reverse('quiz:testDetail', args=[self.id])
+		if self.private:
+			url = "{}?token={}".format(url,self.private_key)
+		return url
+		
 	def get_average_rating(self):
 		try:
 			return round(self.feedbacks.aggregate(Sum('rating')).get('rating__sum') / self.feedbacks.count(),1)
