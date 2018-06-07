@@ -97,20 +97,18 @@ class WebFeedback(models.Model):
     
 
 # SIGNALS 
+
 @receiver(user_logged_in)
 def user_logged_in(request, user, *args, **kwargs):
     new_user, created = UserProfile.objects.get_or_create(user=SocialAccount.objects.get(user=user))
     if created:
         print("New user")
+        try:
+            name = request.user.get_full_name()
+            email_address = request.user.email
+            new_user_signup_email(name, email_address)
+            print("Welcome email sent")
+        except Exception as e:
+            print("Exception occured", e, dir(e))        
     else:
         print("old user")
-
-# @receiver(user_signed_up)
-# def user_signed_up(request, user, *args, **kwargs):
-#     try:
-#         name = request.user.get_full_name()
-#         email_address = request.user.email
-#         new_user_signup_email(name, email_address)
-#     except:
-#         pass
-        

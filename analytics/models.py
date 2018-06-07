@@ -54,6 +54,9 @@ class UserSession(models.Model):
 	active = models.BooleanField(default=True)
 	ended = models.BooleanField(default=False)
 
+	def __str__(self):
+		return "{} session from {}".format(self.user.user.user.get_full_name(), self.ip_address)
+
 	def end_session(self):
 		session_key = self.session_key
 		ended = self.ended
@@ -66,17 +69,29 @@ class UserSession(models.Model):
 			pass
 		return self.ended	
 
-# @receiver(user_logged_in)
-# def user_logged_in(request, user, *args, **kwargs):
-# 	user_profile = UserProfile.objects.get(user__user=request.user)
-# 	ip_address = get_client_ip(request)
-# 	session_key = request.session.session_key
-# 	UserSession.objects.create(
-# 			user = user_profile,
-# 			ip_address = ip_address,
-# 			session_key = session_key
-# 		)
+@receiver(user_logged_in)
+def user_logged_in(request, user, *args, **kwargs):
+	try:
+		user_profile = UserProfile.objects.get(user__user=request.user)
+		ip_address = get_client_ip(request)
+		session_key = request.session.session_key
+		print(session_key)
+		UserSession.objects.create(
+				user = user_profile,
+				ip_address = ip_address,
+				session_key = session_key
+			)
+	except Exception as e:
+		print("Exception occured while user_logged_in", e)
 
-# @receiver(user_logged_out)
-# def user_logged_out(request, user, *args, **kwargs):
-# 	print(request.user, user)
+
+@receiver(user_logged_out)
+def user_logged_out(request, user, *args, **kwargs):
+	try:
+		session_key = request.session.session_key
+		user_profile = UserProfile.objects.get(user__user=request.user)
+		ip_address = get_client_ip(request)
+		user_session_obj = UserSession.objects.get(user=user_profile, session_key=session_key)
+		user_session_obj.end_session()
+	except Exception as e:
+		print("Exception occured while user_logged_out", e)
