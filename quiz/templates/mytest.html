@@ -15,7 +15,7 @@
 <div style="margin: 2%">
   <div class="row">
     <div class="col s2 l1 right">
-      <a id="add-new-question" class="waves-effect waves-light btn-floating blue z-depth-3 right" href="#" onclick="$('#addTestModal').modal('open');"><i class="material-icons" style="vertical-align: middle">playlist_add</i>Add Test</a>
+      <a id="add-new-question" class="waves-effect waves-light btn-floating pulse blue z-depth-3 right" href="#" onclick="$('#addTestModal').modal('open');"><i class="material-icons" style="vertical-align: middle">playlist_add</i>Add Test</a>
     </div>
   </div>
   <div class="row">
@@ -29,24 +29,28 @@
                   font-weight: bold;
                 }
               </style>
-              <a class="test-name grey-text text-darken-4" href="{{ test.get_test_detail_url }}">
+              <a class="test-name grey-text text-darken-4" href="{% if test.is_active %}{{ test.get_test_detail_url }}{% else %}#{% endif %}">
                 {{ test.name }}
               </a>
               <a href="{{test.get_absolute_url}}" class="btn-floating btn-small right red" style="margin-left:1%">
                   <i class="material-icons" style="vertical-align: middle">settings</i>
               </a>
             </span>
-            Total Attempts: {{ test.get_attempts }}<br>
-            Average Rating: {{ test.get_average_rating }}<br>
-            Created on: {{ test.created_on }}
-            <a class="activator right white-text">See Topics({{ test.topics.all|length }})<i class="material-icons" style="vertical-align: middle">eject</i></a>
+            <span class="chip">Total Attempts: {{ test.get_attempts }}</span>
+            <span class="chip">Average Rating: {{ test.get_average_rating }}</span>
+            <span class="chip">Created on: {{ test.created_on }}</span>
+            {% if test.private %}
+              <span class="chip red">Private</span>
+            {% endif %}
+            {% if test.publish %}
+              <span class="chip blue">Published</span>
+            {% endif %}
+            {% if test.is_active %}
+              <span class="chip green">Active</span>
+            {% endif %}
           </div>
-          <div class="card-reveal">
-            <span class="card-title grey-text text-darken-4">Topics<i class="material-icons right">close</i></span>
-            <hr>
-            {% for topic in  test.topics.all %}
-              <div class="chip">{{ topic.name }}</div>
-            {% endfor %}
+          <div class="card-action">
+            <a href="{{test.get_absolute_url}}" class="blue-text">Add or view Questions</a>
           </div>
         </div>
       </div>
@@ -82,9 +86,6 @@
           title: 'Success!',
           type: 'success'
       });
-      console.log(data);
-      console.log(textStatus);
-      console.log(jqXHR);
       $('.ajax-question-form').trigger("reset");
       $('#modal-close').click();
       window.location.reload();

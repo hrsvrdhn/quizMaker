@@ -373,7 +373,7 @@ def MostPopularTest(request):
 		user_profile = get_object_or_404(UserProfile, user__user=request.user)		
 		most_popular = sorted(Test.objects.exclude(owner=user_profile).filter(publish=True, is_active=True, private=False), key=lambda x:x.get_attempts(), reverse=True)[:5]
 	else:
-		most_popular = sorted(Test.objects.filter(publish=True, is_active=True), key=lambda x:x.get_attempts(), reverse=True)[:5]
+		most_popular = sorted(Test.objects.filter(publish=True, is_active=True, private=False), key=lambda x:x.get_attempts(), reverse=True)[:5]
 	serializer = TestSerializerForHome(most_popular, many=True)
 	return Response(serializer.data, status=status.HTTP_200_OK)
 
