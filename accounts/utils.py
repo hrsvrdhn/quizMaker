@@ -192,7 +192,7 @@ def new_user_signup_email(name, email_address):
             {
                 "to": [
                 {
-                    "email": getattr(settings, "DEFAULT_ADMIN_EMAIL", "no-reply@quizmaker.com"),
+                    "email": email_address,
                 },
                 ],
                 "subject": "Welcome to QuizMaker"
@@ -200,7 +200,7 @@ def new_user_signup_email(name, email_address):
         ],
         "from": {
             "name": name,
-            "email": email_address,
+            "email": getattr(settings, "DEFAULT_ADMIN_EMAIL", "no-reply@quizmaker.com"),
         },
         "content": [
             {
