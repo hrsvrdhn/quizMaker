@@ -58,7 +58,7 @@
 	</div>
 	{% if test.private %}
 		<div class="row" style="padding: 1%">
-			<div class="chip col s12 l12">
+			<div class="col s12 l12">
 				Private test URL = 	{% if settings.DEBUG %}localhost:8000{% else%}https://qzmaker.herokuapp.com{% endif %}{{ test.get_test_detail_url }}
 				<!-- <span class="right"><button class="btn">Copy</button></span> -->
 			</div>

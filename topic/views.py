@@ -40,7 +40,7 @@ def RemoveTopic(request):
 from random import randint
 @api_view(['GET'])
 def countTopic(request):
-    qs = Topic.objects.annotate(Count("tests")).exclude(tests__count=0).order_by('-tests__count')[:10]
+    qs = Topic.objects.filter(tests__publish=True, tests__private=False).annotate(Count("tests")).exclude(tests__count=0).order_by('-tests__count')[:10]
     topic_name = [q.name for q in qs]
     topic_count = [q.tests__count for q in qs]
     colors = ["rgb({},{},{})".format(randint(1,255),randint(1,255),randint(1,255)) for _ in range(qs.count())]
