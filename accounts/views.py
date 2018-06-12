@@ -118,7 +118,7 @@ def UserFollowView(request, username):
 
 @api_view(['GET'])
 def TopScorers(request):
-    users = sorted(UserProfile.objects.filter(teststats__isnull=False).distinct(), key=lambda x:x.get_correct_response_count(), reverse=True)[:3]
+    users = sorted(UserProfile.objects.filter(teststats__isnull=False, teststats__test__private=False).distinct(), key=lambda x:x.get_public_correct_response_count(), reverse=True)[:3]
     serializer = TopScorerSerializer(users, many=True)
     return Response(serializer.data)
 
