@@ -32,10 +32,10 @@
             '>
                 <div class="card-content grey-text text-darken-3">
                     <a class="card-title grey-text text-darken-4" href="{% url 'quiz:testDetail' pk=test.pk %}">{{test.name}}</a>
-                    <br>by <a href="{{ test.owner.get_absolute_url }}" class="grey-text text-darken-4">{{ test.owner.user.extra_data.name }}</a>
-                    <br>Attempts: {{ test.get_attempts }}
-                    <br>Average Rating: {{ test.get_average_rating }}
-                    <br>Added on: {{ test.published_on }}
+                    <span class="chip">Added by <a href="{{ test.owner.get_absolute_url }}" class="grey-text text-darken-4">{{ test.owner.user.extra_data.name }}</a></span>
+                    <span class="chip">Attempts: {{ test.get_attempts }}</span>
+                    <span class="chip">Average Rating: {{ test.get_average_rating }}</span>
+                    <span class="chip">Added on: {{ test.published_on }}</span>
                 </div>
             </div>
             {% endfor %}

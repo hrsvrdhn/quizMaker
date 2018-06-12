@@ -40,11 +40,11 @@
                 </div>
                 <div class="card-action">
                     <div class="row">
-                    <div class="col s4 left">
+                    <div class="col s12 l6 left">
                         {% url 'quiz:testDetail' pk=test.pk as share_like_url %}
                         <iframe src="https://www.facebook.com/plugins/like.php?href=http://qzmaker.herokuapp.com/{{ share_like_url | urlencode }}&width=154&layout=button_count&action=like&size=large&show_faces=true&share=true&height=46&appId=323599101479324" width="154" height="33" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
                     </div>
-                    <div class="col s2 right">
+                    <div class="col s12 l6 right">
                         <a href="{% url 'quiz:takeQuiz' pk=test.pk %}{% if test.private %}?token={{ test.private_key }}{% endif %}" class="btn blue right"{% if not user_teststat and not test.is_active %}disabled{% endif %}>
                         {% if user_teststat %}
                         {% if user_teststat.has_completed %}

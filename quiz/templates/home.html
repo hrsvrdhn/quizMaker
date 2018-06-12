@@ -195,13 +195,13 @@
       data.forEach((test, index) => {
         $(carouselId).append(`
         <div class="carousel-item l4 card testcard z-depth-5" style="width: auto">
-        <div class="card-content grey-text text-darken-3"><span class="card-title grey-text text-darken-4" data-detail="/quiz/${test.id}/detail">${test.name}</span><br>by <a href="/user/${test.owner_username}" class="grey-text text-darken-4">${test.owner}</a><br>Attempts: ${test.attempts}<br>Average Rating: ${test.rating}<br>Created on: ${test.date_created}</div></div>
+        <div class="card-content grey-text text-darken-3"><span class="card-title grey-text text-darken-4" data-detail="/quiz/${test.id}/detail">${test.name}</span>Added by <a href="/user/${test.owner_username}" class="grey-text text-darken-4">${test.owner}</a><br>Attempts: ${test.attempts}<br>Average Rating: ${test.rating}<br>Created on: ${test.date_created}<br></div></div>
         `)
       });
       $(carouselId).carousel({
         dist:-30,
         shift:20,
-        padding:50,
+        padding:30,
         onCycleTo: function(data) {
           $(".".concat(carouselId.substr(1).concat("Btn"))).html($(data).find(".card-title").html());
           $(".".concat(carouselId.substr(1).concat("Btn"))).attr("href",($(data).find(".card-title").attr("data-detail")));          
