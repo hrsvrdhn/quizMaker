@@ -317,10 +317,12 @@ def testDetail(request, pk):
 	if test.private and not test.private_key == token:
 		return HttpResponseNotFound("Not found")
 	teststats = TestStat.objects.filter(test=test, has_completed=True).order_by('-score')
+	show_leaderboard = not test.private
 	context = {
 		'test': test,
 		'teststats': teststats,
-		'meta_application_name': test.name+'|',
+		'meta_application_name': test.name +'|',
+		'show_leaderboard' : show_leaderboard,
 	}
 	if request.user.is_authenticated:
 		user_profile = get_object_or_404(UserProfile, user__user=request.user)
@@ -332,12 +334,15 @@ def testDetail(request, pk):
 			pic_url = requests.get(user_profile.user.get_avatar_url()).url
 		except:
 			pic_url = None
+		if test.owner == user_profile:
+			context['show_leaderboard'] = True
 		context['user_teststat'] = user_teststat
 		user_context =  {
 			'name': user_profile.user.extra_data['name'],
 			'profile_pic': pic_url,
 			'pageTitle': test.name,
 		}
+
 		context['user_context'] = user_context
 	object_viewed_signal.send(test.__class__, instance=test, request=request)
 	return render(request, 'testDetail.html', context)
