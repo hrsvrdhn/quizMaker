@@ -123,13 +123,14 @@
 		$(".giveFeedback").click(function(evt){
 			evt.preventDefault();
 			var rating_val = $("#rating").val();
+			var message = $("#message").val();
 			if(rating_val < 0 || rating_val > 5) {
 				return false;
 			}
 			$.ajax({
 				method: 'POST',
 				url: "{% url 'quiz:testfeedback' pk=testno %}",
-				data: {'rating': rating_val},
+				data: {'rating': rating_val, 'message': message},
 				success: function(data, textStatus, jqXHR) {
 					$(".giveFeedback").remove();
 					$("#rating").prop("disabled", true);

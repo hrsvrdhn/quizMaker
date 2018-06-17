@@ -124,6 +124,7 @@ class Feedback(models.Model):
 	rating = models.IntegerField(default=0)
 	test = models.ForeignKey(Test, related_name='feedbacks', on_delete=models.CASCADE)
 	candidate = models.ForeignKey(UserProfile, related_name='candidate_feedback', on_delete=models.CASCADE)
+	message = models.CharField(max_length=1000, blank=True, null=True)
 	
 	def __str__(self):
 		return self.test.name

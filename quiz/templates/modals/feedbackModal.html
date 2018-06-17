@@ -22,6 +22,11 @@
                 <p class="range-field">
                     <input type="range" id="rating" min="0" max="5" {% if feedback %} value="{{ feedback }}" disabled {% endif %}/>
                 </p>
+                {% if not feedback %}
+                    <div class="form-control">
+                        <input type="text" id='message' placeholder="Your Message"/> 
+                    </div>
+                {% endif %}
                 <p class="feedbackMessage center">{% if feedback %}Thanks for your response !{% else %}Share your experience and help us to improve{% endif %}</p>
             </div>
         </div>

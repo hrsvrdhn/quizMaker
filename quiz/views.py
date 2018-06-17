@@ -22,7 +22,7 @@ from analytics.signals import object_viewed_signal
 from .forms import AddQuizForm, AddTestForm
 from .models import Test, Question, TestStat, QuestionStat, Feedback
 from .serializers import TestSerializer, QuestionSerializer, QuestionListSerializer, QuestionStatSerializer, CorrectAnswerSerialize, TestSerializerForHome
-from .utils import random_key_generator
+from .utils import random_key_generator, feedback_mail
 
 def home(request):
 	print("Home")
@@ -356,8 +356,10 @@ def testFeedback(request, pk):
 	if not Feedback.objects.filter(test=test, candidate=user_profile).exists():
 		try:
 			rating_int = int(request.POST.get('rating'))
+			message = request.POST.get('message', None)
 			if rating_int >= 0 and rating_int <=5:
-				feedback = Feedback.objects.create(test=test, candidate=user_profile, rating=rating_int)
+				feedback = Feedback.objects.create(test=test, candidate=user_profile, rating=rating_int, message=message)
+				feedback_mail(feedback)
 				return Response(status=status.HTTP_201_CREATED)
 		except:
 			pass
