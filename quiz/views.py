@@ -1,5 +1,7 @@
+import bleach, re, requests, csv
+from io import StringIO
 from random import shuffle
-import bleach, re, requests
+
 
 from django.shortcuts import render, HttpResponse, get_object_or_404, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.contrib.auth.decorators import login_required
@@ -287,14 +289,15 @@ def ToggleTestPublish(request, pk):
 		
 @api_view(['PUT'])
 def ToggleTestActive(request, pk):
-	if request.user.is_authenticated:
-		user_profile = get_object_or_404(UserProfile, user__user=request.user)
-		test = get_object_or_404(Test, pk=pk, owner=user_profile)	
-		if test.publish:
-			test.is_active = not test.is_active
-			test.save()
-			return Response({'active':test.is_active}, status=status.HTTP_200_OK)
-	return Response(status=status.HTTP_404_NOT_FOUND)
+	if not request.user.is_authenticated:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+	user_profile = get_object_or_404(UserProfile, user__user=request.user)
+	test = get_object_or_404(Test, pk=pk, owner=user_profile)	
+	if not test.publish:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+	test.is_active = not test.is_active
+	test.save()
+	return Response({'active':test.is_active}, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
 def ToggleTestPrivate(request, pk):
@@ -460,4 +463,39 @@ def score_chart(request, pk):
 				"colors": colors,
     		})
 	return Response(status=status.HTTP_404_NOT_FOUND)
-    
+   
+@api_view(['POST'])
+def csv_bulk_upload(request, pk):
+	user_profile = get_object_or_404(UserProfile, user__user=request.user)		
+	try:
+		test = Test.objects.get(pk=pk, owner=user_profile)
+	except Test.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+	if test.publish:
+		raise Http404
+	try:
+		csvf = StringIO(request.FILES['csv_file'].read().decode())
+		csv_reader = csv.reader(csvf, delimiter=',')
+		questions = []
+		valid = True
+		for row in csv_reader:
+			if len(row) != 5:
+				valid = False
+				break
+			questions.append(row)
+		
+		if not valid:
+			return Response({"message" : "File not valid"},status=status.HTTP_400_BAD_REQUEST)
+
+		for qq in questions:
+			Question.objects.create(
+					question=qq[0],
+					wrong_answer_1=qq[1],
+					wrong_answer_2=qq[2],
+					wrong_answer_3=qq[3],
+					correct_answer=qq[4],
+					test=test
+				)
+		return Response({'data': 'Success'})
+	except Exception as e:
+		return Response({"message" : "File not found"},status=status.HTTP_400_BAD_REQUEST)

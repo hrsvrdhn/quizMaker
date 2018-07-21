@@ -1,0 +1,35 @@
+<div id="csv_bulk_upload" class="modal modal-fixed-footer">
+    <div class="modal-content" style="padding:0%">
+        <nav class="website-theme">
+            <div class="nav-wrapper">
+                <div class="left col s8 m5 l5 grey-text text-darken-4" style="margin-left:2%">
+                    <ul>
+                        <li style="font-size:1.3rem">Bulk CSV upload</li>
+                    </ul>
+                </div>
+                <div class="col s4 m7 l7">
+                    <ul class="right">
+                        <li><a href="#!"><i class="modal-action modal-close material-icons red-text text-accent-4">clear</i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="row" style="padding:2%">
+            <div class="col s12">
+                <div class="progress">
+                    <div class="indeterminate"></div>
+                </div>
+                <div class="input_field">
+                    <input type="file" id="csv_file" required="True">
+                </div>
+                <p><strong>Instructions -:</strong></p>
+                <p>
+                    Each row of csv contains 5 comma seperated values. These are Question, wrong answer 1, wrong answer 2, wrong answer 3, correct answer.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" id="csv_upload_btn" class="waves-effect waves-green btn green">Upload</button>
+    </div>
+</div>

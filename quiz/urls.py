@@ -27,5 +27,5 @@ urlpatterns = [
 	re_path(r'^ajax/test/new$', views.NewTest, name="new_test"),
 	re_path(r'^ajax/test/(?P<pk>[0-9]+)/score_distribution$', views.score_distribution, name="score_distribution"),
 	re_path(r'^ajax/test/(?P<pk>[0-9]+)/score_chart$', views.score_chart, name="score_chart"),
-
+	re_path(r'^ajax/test/(?P<pk>[0-9]+)/bulk_upload$', views.csv_bulk_upload, name="csv_bulk_upload"),
 ]	
