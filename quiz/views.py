@@ -22,7 +22,7 @@ from analytics.signals import object_viewed_signal
 
 
 from .forms import AddQuizForm, AddTestForm
-from .models import Test, Question, TestStat, QuestionStat, Feedback
+from .models import Test, Question, TestStat, QuestionStat, Feedback, Comment
 from .serializers import TestSerializer, QuestionSerializer, QuestionListSerializer, QuestionStatSerializer, CorrectAnswerSerialize, TestSerializerForHome
 from .utils import random_key_generator, feedback_mail
 
@@ -320,12 +320,14 @@ def testDetail(request, pk):
 	if test.private and not test.private_key == token:
 		return HttpResponseNotFound("Not found")
 	teststats = TestStat.objects.filter(test=test, has_completed=True).order_by('-score')
+	comments = Comment.objects.filter(test=test)
 	show_leaderboard = not test.private
 	context = {
 		'test': test,
 		'teststats': teststats,
 		'meta_application_name': test.name +'|',
 		'show_leaderboard' : show_leaderboard,
+		'comments': comments
 	}
 	if request.user.is_authenticated:
 		user_profile = get_object_or_404(UserProfile, user__user=request.user)
@@ -499,3 +501,25 @@ def csv_bulk_upload(request, pk):
 		return Response({'data': 'Success'})
 	except Exception as e:
 		return Response({"message" : "File not found"},status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def addComment(request, pk):
+	user_profile = get_object_or_404(UserProfile, user__user=request.user)
+	test = get_object_or_404(Test, pk=pk) 
+	message = request.POST.get('message', None)
+	if not message:
+		return Response({"message" : "Comment cannot be empty"},status=status.HTTP_400_BAD_REQUEST)
+	obj = Comment.objects.create(candidate=user_profile, test=test, message=message)
+	return Response({'data': 'Comment added'})
+
+@api_view(['GET'])
+def deleteComment(request, pk, cpk):
+	user_profile = get_object_or_404(UserProfile, user__user=request.user)
+	test = get_object_or_404(Test, pk=pk) 
+	comment = get_object_or_404(Comment, test=test, pk=cpk)
+	if not test.owner == user_profile and not comment.candidate == user_profile:
+		raise Http404
+	comment.delete()
+	return HttpResponsePermanentRedirect(test.get_test_detail_url())
+
+	

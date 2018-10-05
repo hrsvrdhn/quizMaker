@@ -28,4 +28,6 @@ urlpatterns = [
 	re_path(r'^ajax/test/(?P<pk>[0-9]+)/score_distribution$', views.score_distribution, name="score_distribution"),
 	re_path(r'^ajax/test/(?P<pk>[0-9]+)/score_chart$', views.score_chart, name="score_chart"),
 	re_path(r'^ajax/test/(?P<pk>[0-9]+)/bulk_upload$', views.csv_bulk_upload, name="csv_bulk_upload"),
+	re_path(r'^ajax/test/(?P<pk>[0-9]+)/add_comment$', views.addComment, name="add_comment"),
+	re_path(r'^ajax/test/(?P<pk>[0-9]+)/(?P<cpk>[0-9]+)/delete_comment$', views.deleteComment, name="delete_comment"),
 ]	

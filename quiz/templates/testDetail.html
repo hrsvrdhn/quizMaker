@@ -104,15 +104,61 @@
                         {% endif %}
                 </table>           
             </div>
-            </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col s12 card-title">
+        <h5>Comments</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12">
+             <ul class="collection" id="comment_section">
+                {% for comment in comments %}
+                <li class="collection-item">
+                    <span class="title"><a href="{{ comment.candidate.get_absolute_url }}"><strong>{{ comment.candidate.user.extra_data.name }}</strong></span></a><br>
+                    {{ comment.created_on|date:"M d, Y" }}<br>
+                    {{ comment.message }}
+                    {% if comment.candidate.user.user == request.user %}
+                        <a href="{% url 'quiz:delete_comment' pk=test.pk cpk=comment.pk %}" class="secondary-content"><i class="material-icons">delete</i></a>
+                    {% endif %}
+                </li>
+                {% endfor %}
+                {% if request.user.is_authenticated %}
+                <li class="valign-wrapper row" style="margin: 1rem">
+                    <div class="input-field col s11">
+                        <input id="new_comment" type="text">
+                        <label for="new_comment">Add your comment</label>
+                    </div>
+                    <a class="waves-effect waves-light btn col s1" id="add_comment_button">Comment</a>
+                </li>
+                {% endif %}
+              </ul>
+        </div>
 </div>
 {% endblock content %}
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 <script>
 $(document).ready(function() {
+    $("#add_comment_button").click(function(evnt){
+        evnt.preventDefault();
+        var message = $("#new_comment").val();
+        $.ajax({
+            method: "POST",
+            url: "{% url 'quiz:add_comment' pk=test.pk %}",
+            data: {'message' : message},
+            success: function(data, textStatus, jqXHR) {
+                window.location.reload();
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                new PNotify({
+                    text:"Error adding comment",
+                    type:"error"
+                });
+            } 
+        });
+    });
     $.ajax({
         method:"GET",
         url: "{% url 'quiz:score_distribution' pk=test.pk %}",

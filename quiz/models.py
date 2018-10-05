@@ -7,7 +7,11 @@ from django.db.models import Sum
 
 from topic.models import Topic
 from accounts.models import UserProfile
+
 # Create your models here.
+
+####################################################################################################333
+
 class TestManager(models.Manager):
 	def recommended(self, user):
 		return self.get_queryset().filter(topics__in=user.topics.all()).distinct().exclude(owner=user).exclude(private=True).exclude(attempts__in=TestStat.objects.filter(candidate=user)).distinct()
@@ -57,6 +61,7 @@ class Test(models.Model):
 	def __str__(self):
 		return self.name
 
+####################################################################################################333
 
 class Question(models.Model):
 	test = models.ForeignKey(Test, related_name='questions', on_delete=models.CASCADE)
@@ -73,6 +78,8 @@ class Question(models.Model):
 
 	def get_update_url(self):
 		return reverse('quiz:updateQuestion', kwargs={'tpk':self.test.id, 'qpk': self.id})
+
+####################################################################################################333
 
 class TestStat(models.Model):
 	test = models.ForeignKey(Test, related_name="attempts", null=True, on_delete=models.SET_NULL)
@@ -106,6 +113,8 @@ class TestStat(models.Model):
 	def __str__(self):
 		return "{}-{}".format(self.test, "Stat")
 
+####################################################################################################333
+
 class QuestionStat(models.Model):
 	question = models.ForeignKey(Question, related_name="question_history", null=True, on_delete=models.SET_NULL)
 	candidate = models.ForeignKey(UserProfile, related_name='questionstat', null=True, on_delete=models.CASCADE)	
@@ -120,6 +129,8 @@ class QuestionStat(models.Model):
 	def __str__(self):
 		return  "{}-{}".format(self.question.question, "stat")
 
+####################################################################################################333
+
 class Feedback(models.Model):
 	rating = models.IntegerField(default=0)
 	test = models.ForeignKey(Test, related_name='feedbacks', on_delete=models.CASCADE)
@@ -128,3 +139,14 @@ class Feedback(models.Model):
 	
 	def __str__(self):
 		return self.test.name
+
+####################################################################################################333
+
+class Comment(models.Model):
+	test = models.ForeignKey(Test, related_name='comments', on_delete=models.CASCADE)
+	candidate = models.ForeignKey(UserProfile, related_name='candidate_comments', on_delete=models.CASCADE)
+	message = models.CharField(max_length=2000)
+	created_on = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return self.message
