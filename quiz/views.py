@@ -1,6 +1,7 @@
+from threading import Thread
+from random import shuffle
 import bleach, re, requests, csv
 from io import StringIO
-from random import shuffle
 
 
 from django.shortcuts import render, HttpResponse, get_object_or_404, HttpResponseRedirect, HttpResponsePermanentRedirect
@@ -24,7 +25,7 @@ from analytics.signals import object_viewed_signal
 from .forms import AddQuizForm, AddTestForm
 from .models import Test, Question, TestStat, QuestionStat, Feedback, Comment
 from .serializers import TestSerializer, QuestionSerializer, QuestionListSerializer, QuestionStatSerializer, CorrectAnswerSerialize, TestSerializerForHome
-from .utils import random_key_generator, feedback_mail
+from .utils import random_key_generator, feedback_mail, send_test_complete_email
 
 def home(request):
 	print("Home")
@@ -244,6 +245,7 @@ def endQuiz(request, pk):
 	teststat = get_object_or_404(TestStat, test=test, candidate=user_profile)
 	teststat.has_completed = True
 	teststat.save()
+	send_test_complete_email(teststat)
 	return HttpResponsePermanentRedirect(test.get_test_taking_url())
 
 from topic.serializers import TopicSerializer

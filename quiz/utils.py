@@ -1,10 +1,23 @@
 import random
 import string
 import sendgrid
+from threading import Thread
 
 from django.template import loader
 from django.conf import settings
 from django.utils.text import slugify
+
+
+def postpone(function):
+  def decorator(*args, **kwargs):
+    try:
+        t = Thread(target = function, args=args, kwargs=kwargs)
+        t.daemon = True
+        t.start()
+    except:
+        pass
+  return decorator
+
 
 def random_string_generator(size=10, chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -28,7 +41,7 @@ def unique_slug_generator(instance, new_slug=None):
 def random_key_generator(size=10, digits='0987654321'):
     return ''.join(random.choice(digits) for _ in range(size))
 
-
+@postpone
 def feedback_mail(feedback):
     html_message = loader.render_to_string(
             'testFeedbackMessage.html',
@@ -71,3 +84,48 @@ def feedback_mail(feedback):
         print("Email sent to admin")
     else:
         print("Error sending email")
+
+
+@postpone
+def send_test_complete_email(teststat):
+    html_message = loader.render_to_string(
+            'testCompletedMessage.html',
+            {
+                'test_name': teststat.test.name,
+                'candidate_name': teststat.candidate.user.user.get_full_name(),
+                'test_score': teststat.score
+            }                        
+        )
+    email_address = teststat.candidate.user.user.email
+    if not email_address:
+        return
+    print(email_address)
+    sg = sendgrid.SendGridAPIClient(apikey=getattr(settings, "SENDGRID_API_KEY", ""))
+    mail = {
+        "personalizations": [
+            {
+                "to": [
+                {
+                    "email": email_address,
+                },
+                ],
+                "subject": "Scorecard"
+            }
+        ],
+        "from": {
+            "name": "QuizMaker",
+            "email": getattr(settings, "DEFAULT_ADMIN_EMAIL", "no-reply@quizmaker.com"),
+        },
+        "content": [
+            {
+                "type": "text/html",
+                "value": html_message
+            }
+        ]
+    }
+    response = sg.client.mail.send.post(request_body=mail)
+    if response.status_code == 202:             
+        print("Email sent")
+    else:
+        print("Error sending email")
+
