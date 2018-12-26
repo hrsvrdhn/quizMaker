@@ -90,7 +90,7 @@ def Profile(request, username=None):
         }
     else:
         following = False
-        tests_taken = tests_taken.exclude(private=True)
+        tests_taken = tests_taken.exclude(test__private=True)
     user_context['pageTitle'] = profile.user.extra_data['name'], 
     context = {
         "profile": profile,
