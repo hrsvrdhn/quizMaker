@@ -120,7 +120,7 @@
                     {{ comment.created_on|date:"M d, Y" }}<br>
                     {{ comment.message }}
                     {% if comment.candidate.user.user == request.user %}
-                        <a href="{% url 'quiz:delete_comment' pk=test.pk cpk=comment.pk %}" class="secondary-content"><i class="material-icons">delete</i></a>
+                        <a href="{% url 'quiz:delete_comment' pk=test.pk cpk=comment.pk %}" class="secondary-content"><i class="material-icons red-text">delete</i></a>
                     {% endif %}
                 </li>
                 {% endfor %}

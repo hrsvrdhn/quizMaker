@@ -322,7 +322,7 @@ def testDetail(request, pk):
 	if test.private and not test.private_key == token:
 		return HttpResponseNotFound("Not found")
 	teststats = TestStat.objects.filter(test=test, has_completed=True).order_by('-score')
-	comments = Comment.objects.filter(test=test)
+	comments = Comment.objects.filter(test=test).order_by('created_on')
 	show_leaderboard = not test.private
 	context = {
 		'test': test,
