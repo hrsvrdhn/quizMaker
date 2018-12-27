@@ -1,0 +1,36 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+<div style="margin: 2rem">
+	<form action="{% url 'analytics:download' %}" method="POST">
+  	<div class="row valign-wrapper">
+			<div class="col s12 l6">
+				<h5><span class="black-text">Download Analytics</span></h5>
+				{% csrf_token %}
+				<label for="from_date">From</label>
+				<input type="date" id='from_date' name='from' required>
+				<label for="to_date">To</label>
+				<input type="date" id='to_date' name='to' required>
+			</div>
+			<div class="col s12 l6">
+				<input type='submit' class="btn green right" value="Download as CSV">
+			</div>
+		</div>
+	</form>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+	$(document).ready(function() {
+	  $('.datepicker').pickadate({
+	    selectMonths: true, // Creates a dropdown to control month
+	    selectYears: 15, // Creates a dropdown of 15 years to control year,
+	    today: 'Today',
+	    clear: 'Clear',
+	    close: 'Ok',
+	    closeOnSelect: false // Close upon selecting a date,
+	  });
+	})
+</script>
+{% endblock scripts %}

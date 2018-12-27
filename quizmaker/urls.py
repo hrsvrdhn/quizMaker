@@ -26,10 +26,16 @@ urlpatterns = [
     re_path(r'^accounts/', include('allauth.urls')),
     re_path(r'^quiz/', include(('quiz.urls', "quiz"))),
     re_path(r'^user/', include(('accounts.urls', 'user'))),
-    re_path(r'^topic/', include(('topic.urls', 'topic'))),    
+    re_path(r'^topic/', include(('topic.urls', 'topic'))), 
+    re_path(r'^analytics/', include(('analytics.urls', 'analytics'))),       
     re_path(r'^$', RedirectView.as_view(url="/quiz")),
 ]
 
 handler404 = 'accounts.views.NotFound'
 handler500 = 'accounts.views.ServerError'
 handler400 = 'accounts.views.BadRequest'
+
+
+admin.site.site_header = "QuizMaker Administration"
+admin.site.site_title = "QuizMaker Admin Portal"
+admin.site.index_title = "Welcome Administrator"
