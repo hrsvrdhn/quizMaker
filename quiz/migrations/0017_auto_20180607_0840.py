@@ -5,19 +5,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('quiz', '0016_auto_20180306_1536'),
-    ]
+    dependencies = [("quiz", "0016_auto_20180306_1536")]
 
     operations = [
         migrations.AddField(
-            model_name='test',
-            name='private',
-            field=models.BooleanField(default=False),
+            model_name="test", name="private", field=models.BooleanField(default=False)
         ),
         migrations.AddField(
-            model_name='test',
-            name='private_key',
+            model_name="test",
+            name="private_key",
             field=models.CharField(blank=True, max_length=200, null=True),
         ),
     ]

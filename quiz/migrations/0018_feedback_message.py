@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('quiz', '0017_auto_20180607_0840'),
-    ]
+    dependencies = [("quiz", "0017_auto_20180607_0840")]
 
     operations = [
         migrations.AddField(
-            model_name='feedback',
-            name='message',
+            model_name="feedback",
+            name="message",
             field=models.CharField(blank=True, max_length=1000, null=True),
-        ),
+        )
     ]

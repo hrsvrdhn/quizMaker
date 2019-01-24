@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('quiz', '0014_auto_20180306_1535'),
-    ]
+    dependencies = [("quiz", "0014_auto_20180306_1535")]
 
     operations = [
         migrations.AlterField(
-            model_name='questionstat',
-            name='response',
+            model_name="questionstat",
+            name="response",
             field=models.CharField(max_length=500),
-        ),
+        )
     ]

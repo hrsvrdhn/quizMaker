@@ -5,14 +5,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('quiz', '0009_test_published_on'),
-    ]
+    dependencies = [("quiz", "0009_test_published_on")]
 
     operations = [
         migrations.AddField(
-            model_name='teststat',
-            name='score',
-            field=models.IntegerField(null=True),
-        ),
+            model_name="teststat", name="score", field=models.IntegerField(null=True)
+        )
     ]

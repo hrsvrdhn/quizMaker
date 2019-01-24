@@ -6,14 +6,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('quiz', '0012_auto_20180304_1729'),
-    ]
+    dependencies = [("quiz", "0012_auto_20180304_1729")]
 
     operations = [
         migrations.AlterField(
-            model_name='test',
-            name='negative_marking',
-            field=models.IntegerField(default=0, validators=[django.core.validators.MinValueValidator(0)]),
-        ),
+            model_name="test",
+            name="negative_marking",
+            field=models.IntegerField(
+                default=0, validators=[django.core.validators.MinValueValidator(0)]
+            ),
+        )
     ]

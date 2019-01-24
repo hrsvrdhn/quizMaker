@@ -9,25 +9,47 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
-        ('accounts', '0002_webfeedback'),
+        ("contenttypes", "0002_remove_content_type_name"),
+        ("accounts", "0002_webfeedback"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ObjectViewed',
+            name="ObjectViewed",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ip_address', models.CharField(blank=True, max_length=200, null=True)),
-                ('object_id', models.PositiveIntegerField()),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='accounts.UserProfile')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("ip_address", models.CharField(blank=True, max_length=200, null=True)),
+                ("object_id", models.PositiveIntegerField()),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.ContentType",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="accounts.UserProfile",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Object viewed',
-                'verbose_name_plural': 'Objects viewed',
-                'ordering': ['-timestamp'],
+                "verbose_name": "Object viewed",
+                "verbose_name_plural": "Objects viewed",
+                "ordering": ["-timestamp"],
             },
-        ),
+        )
     ]

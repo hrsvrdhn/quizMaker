@@ -5,19 +5,25 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('accounts', '0001_initial'),
-    ]
+    dependencies = [("accounts", "0001_initial")]
 
     operations = [
         migrations.CreateModel(
-            name='WebFeedback',
+            name="WebFeedback",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=250)),
-                ('email', models.EmailField(max_length=250)),
-                ('description', models.TextField()),
-                ('created_on', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=250)),
+                ("email", models.EmailField(max_length=250)),
+                ("description", models.TextField()),
+                ("created_on", models.DateTimeField(auto_now_add=True)),
             ],
-        ),
+        )
     ]

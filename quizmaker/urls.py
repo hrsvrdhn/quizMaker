@@ -20,20 +20,23 @@ from django.views.generic import RedirectView
 from accounts.views import NotFound
 
 urlpatterns = [
-    re_path(r'^accounts/social/signup', NotFound),    
-    re_path(r'^accounts\/(signup/*|password\S*|inactive/*|(confirm-){0,1}email\S*|password\S*)$', NotFound),
-    re_path(r'^adminhere/', admin.site.urls),
-    re_path(r'^accounts/', include('allauth.urls')),
-    re_path(r'^quiz/', include(('quiz.urls', "quiz"))),
-    re_path(r'^user/', include(('accounts.urls', 'user'))),
-    re_path(r'^topic/', include(('topic.urls', 'topic'))), 
-    re_path(r'^analytics/', include(('analytics.urls', 'analytics'))),       
-    re_path(r'^$', RedirectView.as_view(url="/quiz")),
+    re_path(r"^accounts/social/signup", NotFound),
+    re_path(
+        r"^accounts\/(signup/*|password\S*|inactive/*|(confirm-){0,1}email\S*|password\S*)$",
+        NotFound,
+    ),
+    re_path(r"^adminhere/", admin.site.urls),
+    re_path(r"^accounts/", include("allauth.urls")),
+    re_path(r"^quiz/", include(("quiz.urls", "quiz"))),
+    re_path(r"^user/", include(("accounts.urls", "user"))),
+    re_path(r"^topic/", include(("topic.urls", "topic"))),
+    re_path(r"^analytics/", include(("analytics.urls", "analytics"))),
+    re_path(r"^$", RedirectView.as_view(url="/quiz")),
 ]
 
-handler404 = 'accounts.views.NotFound'
-handler500 = 'accounts.views.ServerError'
-handler400 = 'accounts.views.BadRequest'
+handler404 = "accounts.views.NotFound"
+handler500 = "accounts.views.ServerError"
+handler400 = "accounts.views.BadRequest"
 
 
 admin.site.site_header = "QuizMaker Administration"

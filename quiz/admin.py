@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from quiz.models import Question, Test, TestStat, QuestionStat, Feedback
+
 # Register your models here.
 
 admin.site.register(Question)

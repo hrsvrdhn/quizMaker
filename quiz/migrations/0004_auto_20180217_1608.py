@@ -6,34 +6,51 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('quiz', '0003_auto_20180216_0114'),
-    ]
+    dependencies = [("quiz", "0003_auto_20180216_0114")]
 
     operations = [
         migrations.AlterField(
-            model_name='questionstat',
-            name='question',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='question_history', to='quiz.Question'),
+            model_name="questionstat",
+            name="question",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="question_history",
+                to="quiz.Question",
+            ),
         ),
         migrations.AlterField(
-            model_name='test',
-            name='is_active',
+            model_name="test",
+            name="is_active",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='test',
-            name='owner',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='tests', to='accounts.UserProfile'),
+            model_name="test",
+            name="owner",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="tests",
+                to="accounts.UserProfile",
+            ),
         ),
         migrations.AlterField(
-            model_name='teststat',
-            name='candidate',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='teststat', to='accounts.UserProfile'),
+            model_name="teststat",
+            name="candidate",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="teststat",
+                to="accounts.UserProfile",
+            ),
         ),
         migrations.AlterField(
-            model_name='teststat',
-            name='test',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='attempts', to='quiz.Test'),
+            model_name="teststat",
+            name="test",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="attempts",
+                to="quiz.Test",
+            ),
         ),
     ]

@@ -5,19 +5,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('quiz', '0011_auto_20180304_1529'),
-    ]
+    dependencies = [("quiz", "0011_auto_20180304_1529")]
 
     operations = [
         migrations.AddField(
-            model_name='test',
-            name='negative_marking',
+            model_name="test",
+            name="negative_marking",
             field=models.IntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='teststat',
-            name='score',
+            model_name="teststat",
+            name="score",
             field=models.DecimalField(decimal_places=6, max_digits=9, null=True),
         ),
     ]

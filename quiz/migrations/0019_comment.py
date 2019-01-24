@@ -6,20 +6,39 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('accounts', '0002_webfeedback'),
-        ('quiz', '0018_feedback_message'),
-    ]
+    dependencies = [("accounts", "0002_webfeedback"), ("quiz", "0018_feedback_message")]
 
     operations = [
         migrations.CreateModel(
-            name='Comment',
+            name="Comment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('message', models.CharField(max_length=2000)),
-                ('created_on', models.DateTimeField(auto_now_add=True)),
-                ('candidate', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='candidate_comments', to='accounts.UserProfile')),
-                ('test', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='quiz.Test')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("message", models.CharField(max_length=2000)),
+                ("created_on", models.DateTimeField(auto_now_add=True)),
+                (
+                    "candidate",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="candidate_comments",
+                        to="accounts.UserProfile",
+                    ),
+                ),
+                (
+                    "test",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comments",
+                        to="quiz.Test",
+                    ),
+                ),
             ],
-        ),
+        )
     ]

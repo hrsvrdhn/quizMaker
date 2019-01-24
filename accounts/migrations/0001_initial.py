@@ -11,19 +11,46 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('topic', '__first__'),
-        ('socialaccount', '0003_extra_data_default_dict'),
+        ("topic", "__first__"),
+        ("socialaccount", "0003_extra_data_default_dict"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('profilepic_url', models.CharField(blank=True, max_length=1000)),
-                ('following', models.ManyToManyField(blank=True, related_name='followed_by', to='accounts.UserProfile')),
-                ('topics', models.ManyToManyField(blank=True, related_name='liked_by', to='topic.Topic')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to='socialaccount.SocialAccount')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("profilepic_url", models.CharField(blank=True, max_length=1000)),
+                (
+                    "following",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="followed_by",
+                        to="accounts.UserProfile",
+                    ),
+                ),
+                (
+                    "topics",
+                    models.ManyToManyField(
+                        blank=True, related_name="liked_by", to="topic.Topic"
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="profile",
+                        to="socialaccount.SocialAccount",
+                    ),
+                ),
             ],
-        ),
+        )
     ]
