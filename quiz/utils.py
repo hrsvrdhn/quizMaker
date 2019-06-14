@@ -107,3 +107,34 @@ def send_test_complete_email(teststat):
         print("Email sent")
     else:
         print("Error sending email")
+
+
+def default_difficulty():
+    from quiz.models import TestStat, Test
+    from collections import defaultdict
+
+
+    for test in Test.objects.all():
+        question_count = test.questions.count()
+        test_total_percentage = 0
+        total_attempts = 0
+        
+        for attempt in test.attempts.all():
+            if not attempt.has_completed:
+                continue
+            total_attempts += 1
+            test_total_percentage += float(attempt.score) / question_count
+
+        if total_attempts == 0:
+            continue
+
+        average_percentage = (test_total_percentage*100) / total_attempts
+
+        if average_percentage <= 30:
+            test.difficulty = 'HARD'
+        elif average_percentage <= 80:
+            test.difficulty = 'MEDIUM'
+        else:
+            test.difficulty = 'EASY'
+
+        test.save()

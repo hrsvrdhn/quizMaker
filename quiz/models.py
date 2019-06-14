@@ -41,6 +41,18 @@ class Test(models.Model):
     private = models.BooleanField(default=False)
     private_key = models.CharField(max_length=200, blank=True, null=True)
 
+    DIFFICULTY_CHOICES = [
+        ('EASY', 'EASY'),
+        ('MEDIUM', 'MEDIUM'),
+        ('HARD', 'HARD'),
+    ]
+
+    difficulty = models.CharField(
+        max_length=6,
+        choices=DIFFICULTY_CHOICES,
+        default='MEDIUM'
+    )
+
     objects = TestManager()
 
     def get_test_taking_url(self):

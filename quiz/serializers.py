@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Test, Question, QuestionStat
+from .models import Test, Question, QuestionStat, TestStat
 
 
 class TestSerializer(serializers.ModelSerializer):
