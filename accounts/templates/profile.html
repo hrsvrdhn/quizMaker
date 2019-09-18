@@ -31,9 +31,9 @@
                 <a class="togglefollow btn-flat blue white-text lighten-1 z-depth-1" href="#" data-url="{{ profile.get_follow_url }}" style="margin-right:1%; font-size:0.8rem;">{% if following %}Unfollow{% else %}Follow{% endif %}</a>
                 {% endif %}
                 {% if owner %}
-                <a class="btn-flat blue white-text lighten-1 z-depth-1" href="{% url 'quiz:mytest' %}" style="margin-right:1%; font-size:0.8rem;">Manage tests</a>                
+                <a class="btn-flat blue white-text lighten-1 z-depth-1" href="{% url 'quiz:mytest' %}" style="margin:2%; font-size:0.8rem;">My test</a>                
                 {% endif %}
-                <button class="btn-flat activator blue white-text lighten-1 z-depth-1" style="margin-right:1%; font-size:0.8rem;">Favourite Topics <i class="material-icons" style="vertical-align: middle">eject</i></button>
+                <button class="btn-flat activator blue white-text lighten-1 z-depth-1" style="font-size:0.8rem;">Topics <i class="material-icons" style="vertical-align: middle">eject</i></button>
             </div>
         </div>
         <div class="card-reveal">
