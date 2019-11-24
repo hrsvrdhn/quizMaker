@@ -457,7 +457,7 @@ def RecommendedTest(request):
     if request.user.is_authenticated:
         user_profile = get_object_or_404(UserProfile, user__user=request.user)
         recommeded_tests = sorted(
-            Test.objects.recommended(user_profile, TestStat),
+            Test.objects.recommended(user_profile),
             key=lambda x: x.get_average_rating,
             reverse=True,
         )

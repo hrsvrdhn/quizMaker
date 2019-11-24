@@ -1,14 +1,14 @@
 from django.db import models
 
 class TestManager(models.Manager):
-    def recommended(self, user, testStat_klass):
+    def recommended(self, user):
         return (
             self.get_queryset()
             .filter(topics__in=user.topics.all())
             .distinct()
             .exclude(owner=user)
             .exclude(private=True)
-            .exclude(attempts__in=testStat_klass.objects.filter(candidate=user))
+            .exclude(attempts__in=TestStat.objects.filter(candidate=user))
             .distinct()
         )
 

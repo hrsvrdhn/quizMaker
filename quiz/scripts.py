@@ -15,9 +15,8 @@ def addTopicToCandidate():
 
 def sendMails():
     from accounts.models import UserProfile
-    from quiz.models import Test, TestStat
-    from quiz.utils import sendRecommendationTestEmail
+    from quiz.models import Test
     for userProfile in UserProfile.objects.all():
-        recommendedTests = Test.objects.recommended(userProfile, TestStat)
+        recommendedTests = Test.objects.recommended(user_profile)
         sendRecommendationTestEmail(userProfile, recommendedTests)
-
+        

@@ -145,13 +145,12 @@ def sendRecommendationTestEmail(userProfile, recommendedTests):
         "testRecommendationEmail.html",
         {
             "recommendedTests" : recommendedTests,
-            "candidate_name" : userProfile.user.user.get_full_name(),
+            "candidate_name" : teststat.candidate.user.user.get_full_name(),
         },
     )
-    email_address = userProfile.user.user.email
+    email_address = teststat.candidate.user.user.email
     if not email_address:
         return
-    print("==========================================================================================")
     print(email_address)
     print(html_message)
     # sg = sendgrid.SendGridAPIClient(apikey=getattr(settings, "SENDGRID_API_KEY", ""))
