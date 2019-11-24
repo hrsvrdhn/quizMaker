@@ -150,22 +150,19 @@ def sendRecommendationTestEmail(userProfile, recommendedTests):
     email_address = userProfile.user.user.email
     if not email_address:
         return
-    print("==========================================================================================")
-    print(email_address)
-    print(html_message)
-    # sg = sendgrid.SendGridAPIClient(apikey=getattr(settings, "SENDGRID_API_KEY", ""))
-    # mail = {
-    #     "personalizations": [
-    #         {"to": [{"email": email_address}], "subject": "QuizMaker Recommendations"}
-    #     ],
-    #     "from": {
-    #         "name": "QuizMaker",
-    #         "email": getattr(settings, "DEFAULT_ADMIN_EMAIL", "no-reply@quizmaker.com"),
-    #     },
-    #     "content": [{"type": "text/html", "value": html_message}],
-    # }
-    # response = sg.client.mail.send.post(request_body=mail)
-    # if response.status_code == 202:
-    #     print("Email sent")
-    # else:
-    #     print("Error sending email")
+    sg = sendgrid.SendGridAPIClient(apikey=getattr(settings, "SENDGRID_API_KEY", ""))
+    mail = {
+        "personalizations": [
+            {"to": [{"email": email_address}], "subject": "QuizMaker Recommendations"}
+        ],
+        "from": {
+            "name": "QuizMaker",
+            "email": getattr(settings, "DEFAULT_ADMIN_EMAIL", "no-reply@quizmaker.com"),
+        },
+        "content": [{"type": "text/html", "value": html_message}],
+    }
+    response = sg.client.mail.send.post(request_body=mail)
+    if response.status_code == 202:
+        print("Email sent")
+    else:
+        print("Error sending email")
