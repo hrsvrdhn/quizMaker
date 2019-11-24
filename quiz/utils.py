@@ -139,7 +139,6 @@ def default_difficulty():
         test.save()
     
 
-@postpone
 def sendRecommendationTestEmail(userProfile, recommendedTests):
     html_message = loader.render_to_string(
         "testRecommendationEmail.html",
