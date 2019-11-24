@@ -100,7 +100,7 @@
                                 Date Taken: {{ teststat.date_taken|date }}
                                 <br>
                                     {% if not teststat.score == None %}
-                                    Score: {{ teststat.score }} 
+                                    Score: {{ teststat.score|floatformat:2 }} 
                                     {% endif %}
                                 <br>
                             </span>

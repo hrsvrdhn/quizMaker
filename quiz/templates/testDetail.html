@@ -123,6 +123,8 @@
                         <a href="{% url 'quiz:delete_comment' pk=test.pk cpk=comment.pk %}" class="secondary-content"><i class="material-icons red-text">delete</i></a>
                     {% endif %}
                 </li>
+                {% empty %}
+                    No comments
                 {% endfor %}
                 {% if request.user.is_authenticated %}
                 <li class="valign-wrapper row" style="margin: 1rem">

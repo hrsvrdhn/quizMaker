@@ -11,6 +11,7 @@ from django.shortcuts import (
     HttpResponseRedirect,
     HttpResponsePermanentRedirect,
 )
+
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.core import serializers
@@ -38,6 +39,7 @@ from .serializers import (
     CorrectAnswerSerialize,
     TestSerializerForHome,
 )
+
 from .utils import random_key_generator, feedback_mail, send_test_complete_email
 
 
