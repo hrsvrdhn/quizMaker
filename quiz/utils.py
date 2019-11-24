@@ -108,6 +108,7 @@ def send_test_complete_email(teststat):
     else:
         print("Error sending email")
 
+
 def default_difficulty():
     from quiz.models import TestStat, Test
     from collections import defaultdict
@@ -137,35 +138,3 @@ def default_difficulty():
             test.difficulty = 'EASY'
 
         test.save()
-    
-
-@postpone
-def sendRecommendationTestEmail(userProfile, recommendedTests):
-    html_message = loader.render_to_string(
-        "testRecommendationEmail.html",
-        {
-            "recommendedTests" : recommendedTests,
-            "candidate_name" : teststat.candidate.user.user.get_full_name(),
-        },
-    )
-    email_address = teststat.candidate.user.user.email
-    if not email_address:
-        return
-    print(email_address)
-    print(html_message)
-    # sg = sendgrid.SendGridAPIClient(apikey=getattr(settings, "SENDGRID_API_KEY", ""))
-    # mail = {
-    #     "personalizations": [
-    #         {"to": [{"email": email_address}], "subject": "QuizMaker Recommendations"}
-    #     ],
-    #     "from": {
-    #         "name": "QuizMaker",
-    #         "email": getattr(settings, "DEFAULT_ADMIN_EMAIL", "no-reply@quizmaker.com"),
-    #     },
-    #     "content": [{"type": "text/html", "value": html_message}],
-    # }
-    # response = sg.client.mail.send.post(request_body=mail)
-    # if response.status_code == 202:
-    #     print("Email sent")
-    # else:
-    #     print("Error sending email")
