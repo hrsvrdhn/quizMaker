@@ -88,11 +88,13 @@ def addTestForm(request):
     print("Add test form")
     user_profile = get_object_or_404(UserProfile, user__user=request.user)
     serializer = TestSerializer(data=request.data)
-    if serializer.is_valid():
-        print(serializer.validated_data)
-        serializer.save(owner=user_profile)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    print(serializer.validated_data)
+    serializer.save(owner=user_profile)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @login_required
@@ -100,9 +102,7 @@ def manageTest(request, pk=None):
     print("ManageTest")
     qform = AddQuizForm()
     user_profile = get_object_or_404(UserProfile, user__user=request.user)
-    if request.method == "POST":
-        pass
-    else:
+    if not request.method == "POST":
         test = get_object_or_404(Test, pk=pk, owner=user_profile)
         questions = test.questions.all()
         all_topics = Topic.objects.exclude(tests=test)
@@ -130,7 +130,6 @@ def manageTest(request, pk=None):
 @login_required
 @api_view(["GET", "PUT", "DELETE"])
 def updateQuestionForm(request, tpk=None, qpk=None):
-    print("Hellllllllllllllooooooooo", request.method)
     user_profile = get_object_or_404(UserProfile, user__user=request.user)
     try:
         test = Test.objects.get(pk=tpk, owner=user_profile)
@@ -187,11 +186,8 @@ def addQuestionForm(request, pk):
 @api_view(["GET"])
 def getQuestionList(request, pk):
     user_profile = get_object_or_404(UserProfile, user__user=request.user)
-    try:
-        test = Test.objects.get(pk=pk)
-        questions = Question.objects.filter(test=test)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    test = get_object_or_404(Test, pk=pk)
+    questions = Question.objects.questionListByTest(test=test)
     if (
         user_profile == test.owner
         or TestStat.objects.filter(test=test, candidate=user_profile).exists()
@@ -646,3 +642,7 @@ def deleteComment(request, pk, cpk):
         raise Http404
     comment.delete()
     return HttpResponsePermanentRedirect(test.get_test_detail_url())
+
+# @api_view(["GET"])
+# def sendTestPromotions(request, pk, cpk):
+#     user_profiles = UserProfile.objects.all()

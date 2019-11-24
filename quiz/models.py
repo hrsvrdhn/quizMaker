@@ -7,24 +7,11 @@ from django.db.models import Sum
 
 from topic.models import Topic
 from accounts.models import UserProfile
+from quiz.model_managers import TestManager, QuestionManager
 
 # Create your models here.
 
 ####################################################################################################333
-
-
-class TestManager(models.Manager):
-    def recommended(self, user):
-        return (
-            self.get_queryset()
-            .filter(topics__in=user.topics.all())
-            .distinct()
-            .exclude(owner=user)
-            .exclude(private=True)
-            .exclude(attempts__in=TestStat.objects.filter(candidate=user))
-            .distinct()
-        )
-
 
 class Test(models.Model):
     name = models.CharField(max_length=500, blank=False, default="Sample Test")
@@ -102,6 +89,8 @@ class Question(models.Model):
     correct_answer = models.CharField(max_length=500, blank=True, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+
+    objects = QuestionManager()
 
     def __str__(self):
         return self.question
