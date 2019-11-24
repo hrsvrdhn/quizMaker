@@ -19,7 +19,5 @@ def sendMails():
     from quiz.utils import sendRecommendationTestEmail
     for userProfile in UserProfile.objects.all():
         recommendedTests = Test.objects.recommended(userProfile, TestStat)
-        if not recommendedTests:
-            continue
         sendRecommendationTestEmail(userProfile, recommendedTests)
 
