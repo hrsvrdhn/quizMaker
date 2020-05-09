@@ -1,3 +1,4 @@
+import requests
 import sendgrid, bleach
 
 from django.db import models
@@ -11,6 +12,7 @@ from allauth.socialaccount.models import SocialAccount
 
 from topic.models import Topic
 from .utils import web_feedback_email, new_user_signup_email
+from requests.exceptions import RequestException
 
 # Create your models here.
 class UserProfileManager(models.Manager):
@@ -128,6 +130,13 @@ class UserProfile(models.Model):
                 self.get_correct_response_count() * 100 / self.get_attempts_count(), 2
             )
         except:
+            return None
+
+    def get_profile_pic_url(self):
+        try:
+            return requests.get(self.user.get_avatar_url()).url
+        except RequestException as e:
+            print("Exception raised while getting profile picture url : ", e)
             return None
 
 

@@ -11,6 +11,7 @@ from accounts.models import UserProfile
 from .signals import object_viewed_signal
 from .utils import get_client_ip
 
+
 # Create your models here.
 
 
@@ -46,7 +47,7 @@ def object_viewed_signal(sender, instance, request, *args, **kwargs):
         user_profile = UserProfile.objects.get(user__user=request.user)
     except:
         user_profile = None
-    new_obj_viewed = ObjectViewed.objects.create(
+    ObjectViewed.objects.create(
         user=user_profile,
         ip_address=get_client_ip(request),
         content_type=c_type,

@@ -1,16 +1,13 @@
-import requests, bleach
+import requests
 
 from django.shortcuts import (
     render,
-    HttpResponse,
     get_object_or_404,
-    HttpResponseRedirect,
     HttpResponsePermanentRedirect,
 )
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from django.core import serializers
-from django.http import JsonResponse, Http404
+from django.http import Http404
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 
@@ -19,11 +16,10 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from topic.models import Topic
-from topic.serializers import TopicSerializer
 from quiz.models import TestStat
 from analytics.signals import object_viewed_signal
 
-from .models import UserProfile, WebFeedback
+from .models import UserProfile
 from .forms import EmailTestForm
 from .serializers import (
     WebFeedbackSerializer,
@@ -34,23 +30,25 @@ from .utils import following_email
 
 # Create your views here.
 
-
 def NotFound(request, *args, **kwargs):
     if request.is_ajax():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    return render(request, "404.html", status=404)
+    else:
+        return render(request, "404.html", status=404)
 
 
 def ServerError(request, *args, **kwargs):
     if request.is_ajax():
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return render(request, "500.html", status=500)
+    else:
+        return render(request, "500.html", status=500)
 
 
 def BadRequest(request, *args, **kwargs):
     if request.is_ajax():
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    return render(request, "400.html", status=400)
+    else:
+        return render(request, "400.html", status=400)
 
 
 @api_view(["POST"])

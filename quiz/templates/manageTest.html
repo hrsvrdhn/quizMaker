@@ -359,7 +359,7 @@
 				$('.ajax-question-form').trigger("reset");
 				$(".ql-editor").empty();
 				$("#modal-title").html("Add Question");
-				$("#questionSaveButton").html("Add Question");
+				$("#questionSaveButton").html("Save");
 				$('.ajax-question-form').attr('data-url',"{% url 'quiz:addQuestionForm' pk=test.pk %}");
 				$('.ajax-question-form').attr('data-method','POST');
 		});
@@ -381,7 +381,7 @@
 					$('.ajax-question-form').attr('data-url',$thisURL);
 					$('.ajax-question-form').attr('data-method','PUT');
 					$("#modal-title").html("Edit Question");
-					$("#questionSaveButton").prop("disabled", ispublished).html("Edit Question");
+					$("#questionSaveButton").prop("disabled", ispublished).html("Save");
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					console.log(errorThrown);
@@ -390,8 +390,10 @@
 		});
 		$('.ajax-question-form').submit(function(event) {
 			event.preventDefault();
-			$("#id_question").val($(".ql-editor").html());		
+			$("#id_question").val($(".ql-editor").html());
 			var $formData = $(this).serialize();
+			console.log("form object ", this);
+			console.log("sdfdsafdsafasdsadfasfs",$formData);
 			var $methodType = $('.ajax-question-form').attr('data-method');
 			var $thisURL = $('.ajax-question-form').attr('data-url');
 			console.log($formData);
@@ -425,8 +427,9 @@
 			refreshQuestionList(data);
 		}
 		function handleFormError(jqXHR, textStatus, errorThrown) {
+			console.log(jqXHR, textStatus, errorThrown);
 			new PNotify({
-				title: 'Oops! Error',
+				title: jqXHR.responseJSON.message,
 				type: 'error'
 			});
 			console.log(errorThrown);

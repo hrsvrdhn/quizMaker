@@ -1,11 +1,13 @@
 import random
 import string
-import sendgrid
 from threading import Thread
 
-from django.template import loader
+import sendgrid
 from django.conf import settings
+from django.template import loader
 from django.utils.text import slugify
+from rest_framework import status
+from rest_framework.response import Response
 
 
 def postpone(function):
@@ -16,6 +18,15 @@ def postpone(function):
             t.start()
         except:
             pass
+
+    return decorator
+
+
+def rest_login_required_or_404(function):
+    def decorator(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return function(request, *args, **kwargs)
 
     return decorator
 
@@ -110,15 +121,13 @@ def send_test_complete_email(teststat):
 
 
 def default_difficulty():
-    from quiz.models import TestStat, Test
-    from collections import defaultdict
-
+    from quiz.models import Test
 
     for test in Test.objects.all():
         question_count = test.questions.count()
         test_total_percentage = 0
         total_attempts = 0
-        
+
         for attempt in test.attempts.all():
             if not attempt.has_completed:
                 continue
@@ -128,7 +137,7 @@ def default_difficulty():
         if total_attempts == 0:
             continue
 
-        average_percentage = (test_total_percentage*100) / total_attempts
+        average_percentage = (test_total_percentage * 100) / total_attempts
 
         if average_percentage <= 30:
             test.difficulty = 'HARD'

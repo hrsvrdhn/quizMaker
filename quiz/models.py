@@ -1,12 +1,13 @@
 import bleach
-
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.urls import reverse
 from django.db.models import Sum
+from django.urls import reverse
 
-from topic.models import Topic
 from accounts.models import UserProfile
+from topic.models import Topic
+
 
 # Create your models here.
 
@@ -24,6 +25,9 @@ class TestManager(models.Manager):
             .exclude(attempts__in=TestStat.objects.filter(candidate=user))
             .distinct()
         )
+
+    def getTestByOwner(self, owner):
+        return self.get_queryset().filter(owner=owner)
 
 
 class Test(models.Model):
@@ -111,6 +115,13 @@ class Question(models.Model):
             "quiz:updateQuestion", kwargs={"tpk": self.test.id, "qpk": self.id}
         )
 
+    def save(self, *args, **kwargs):
+        options_set = {self.wrong_answer_1, self.wrong_answer_2, self.wrong_answer_3, self.correct_answer}
+        if not len(options_set) == 4:
+            print("Cannot save, Duplication options in questions")
+            raise ValidationError("All options must be unique")
+        super(Question, self).save(*args, **kwargs)
+
 
 ####################################################################################################333
 
@@ -144,6 +155,11 @@ class TestStat(models.Model):
                 .count()
             )
         return None
+
+    def get_round_off_score(self):
+        if not self.score:
+            return 0
+        return round(self.score, 2)
 
     def get_correct_response_count(self):
         if self.has_completed:
