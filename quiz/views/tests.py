@@ -16,7 +16,7 @@ from quiz.models import Test, TestStat, Feedback, Comment, Question
 from quiz.serializers import TestSerializerForHome, TestSerializer
 from quiz.utils import random_key_generator, rest_login_required_or_404, feedback_mail
 from quiz.constants import PageTitle
-from quiz.views import build_user_context, perform_test_complete_operations, can_take_quiz, is_user_owner_of_test, \
+from quiz.views.common_view_utils import build_user_context, perform_test_complete_operations, can_take_quiz, is_user_owner_of_test, \
     get_object_or_none
 
 from topic.models import Topic

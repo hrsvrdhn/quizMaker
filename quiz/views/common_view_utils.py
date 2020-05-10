@@ -113,3 +113,9 @@ def perform_test_complete_operations(test_stat):
     test_stat.has_completed = True
     test_stat.save()
     send_test_complete_email(test_stat)
+
+
+def build_repsonse_with_message(message, response_status=status.HTTP_200_OK):
+    return Response(
+        {"message": message}, status=response_status
+    )

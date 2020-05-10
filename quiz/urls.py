@@ -54,7 +54,7 @@ urlpatterns = [
     ),
     re_path(
         r"^ajax/test/(?P<pk>[0-9]+)/bulk_upload$",
-        views.csv_bulk_upload,
+        views.bulk_upload,
         name="csv_bulk_upload",
     ),
     re_path(

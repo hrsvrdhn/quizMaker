@@ -84,7 +84,7 @@
 				</span>
 				<span class="right">
 					<div class="col s12 l10">
-						<a id="csv_file_upload_button" class="waves-effect waves-light btn red center" onclick="$('#csv_bulk_upload').modal('open');" href="#" {% if test.publish %}disabled{% endif %}>CSV Upload
+						<a id="csv_file_upload_button" class="waves-effect waves-light btn red center" onclick="$('#csv_bulk_upload').modal('open');" href="#" {% if test.publish %}disabled{% endif %}>Bulk Upload
 						</a>
 					</div>
 					<div class="col s12 l2 right">
@@ -121,7 +121,7 @@
 				},
 				error: function(error) {
 					new PNotify({
-						title: error.responseJSON.message,
+						text: error.responseJSON.message,
 						type: 'error'
 					});
 					$(".progress").hide(500);
@@ -168,14 +168,14 @@
 				data: $formdata,
 				success: function(data, textStatus, jqXHR) {
 					new PNotify({
-						title: 'Topic added',
+						text: 'Topic added',
 						type: 'success'
 					});
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					$(`.chip:contains('"${chip.tag}"<i class="material-icons close">close</i>')`).remove()
 					new PNotify({
-						title: 'Oops! Reload Again',
+						text: 'Oops! Reload Again',
 						type: 'error'
 					});
 				}
@@ -190,13 +190,13 @@
 				data: $formdata,
 				success: function(data, textStatus, jqXHR) {
 					new PNotify({
-						title: 'Topic removed',
+						text: 'Topic removed',
 						type: 'success'
 					});
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					new PNotify({
-						title: 'Oops! Reload Again',
+						text: 'Oops! Reload Again',
 						type: 'error'
 					});
 				}

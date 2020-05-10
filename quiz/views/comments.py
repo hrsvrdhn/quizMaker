@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from accounts.models import UserProfile
 from quiz.models import Test, Comment
-from quiz.views import get_object_or_404_status_response
+from quiz.views.common_view_utils import get_object_or_404_status_response
 
 
 @api_view(["POST"])

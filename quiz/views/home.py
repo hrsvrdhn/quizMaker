@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 from quiz.constants import PageTitle
-from quiz.views import build_user_context
+from quiz.views.common_view_utils import build_user_context
 
 
 def home(request):

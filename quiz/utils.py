@@ -1,5 +1,6 @@
 import random
 import string
+import csv
 from threading import Thread
 
 import sendgrid
@@ -8,6 +9,8 @@ from django.template import loader
 from django.utils.text import slugify
 from rest_framework import status
 from rest_framework.response import Response
+from pyexcel_xls import get_data as xls_get
+from pyexcel_xlsx import get_data as xlsx_get
 
 
 def postpone(function):
@@ -147,3 +150,20 @@ def default_difficulty():
             test.difficulty = 'EASY'
 
         test.save()
+
+
+def get_file_type(filename):
+    return str(filename).split(".")[-1].lower()
+
+
+def get_data_from_csv(file):
+    return csv.reader(file.read().decode(), delimiter=',')
+
+
+def get_data_from_excel(file, column_limit, sheet_name):
+    if get_file_type(file) == 'xls':
+        data = xls_get(file, column_limit=column_limit)
+    else:
+        data = xlsx_get(file, column_limit=column_limit)
+
+    return data.get(sheet_name, [])

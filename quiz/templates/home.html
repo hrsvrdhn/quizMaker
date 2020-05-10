@@ -209,10 +209,9 @@
       });
     }
     function errorCarousel(carouselId) {
-      new PNotify({
-        text: "Error! Please reload the page",
-        type:"error",
-      });
+        $(".".concat(carouselId.substr(1))).empty();
+        $(".".concat(carouselId.substr(1).concat("Btn"))).remove();
+        $(carouselId).remove();
     }
   });
 </script>
