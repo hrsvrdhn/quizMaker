@@ -1,3 +1,6 @@
+packaging==16.8
+psycopg2==2.7.4
+pyparsing==2.2.0
 appdirs==1.4.3
 bleach==2.1.2
 boto3==1.10.19
