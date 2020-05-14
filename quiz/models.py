@@ -118,7 +118,6 @@ class Question(models.Model):
     def save(self, *args, **kwargs):
         options_set = {self.wrong_answer_1, self.wrong_answer_2, self.wrong_answer_3, self.correct_answer}
         if not len(options_set) == 4:
-            print("Cannot save, Duplication options in questions")
             raise ValidationError("All options must be unique")
         super(Question, self).save(*args, **kwargs)
 

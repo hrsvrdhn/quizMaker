@@ -1,9 +1,7 @@
 from random import shuffle
 
 import bleach
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.datastructures import MultiValueDictKeyError
 from rest_framework import status
@@ -18,13 +16,15 @@ from quiz.serializers import (
     QuestionStatSerializer,
 )
 from quiz.utils import get_file_type, get_data_from_csv, get_data_from_excel, rest_login_required_or_404
-from quiz.views.common_view_utils import get_object_or_404_status_response, is_user_owner_of_test, has_attempted_test, build_repsonse_with_message
+from quiz.views.common_view_utils import get_object_or_404_status_response, is_user_owner_of_test, has_attempted_test, \
+    build_repsonse_with_message, wrap_with_internal_service_exception
 
 
-@rest_login_required_or_404
 @api_view(["GET", "PUT", "DELETE"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def update_question_form(request, tpk=None, qpk=None):
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
     test = get_object_or_404_status_response(Test, pk=tpk, owner=user_profile)
     question = get_object_or_404_status_response(Question, pk=qpk, test=test)
 
@@ -33,51 +33,66 @@ def update_question_form(request, tpk=None, qpk=None):
 
     elif request.method == "PUT":
         if test.publish:
-            raise Http404
+            return build_repsonse_with_message("Cannot update question once test is published",
+                                               response_status=status.HTTP_400_BAD_REQUEST)
         serializer = QuestionSerializer(question, data=request.data)
         if not serializer.is_valid():
-            return Response({"message" : "Please enter valid values"}, status=status.HTTP_400_BAD_REQUEST)
+            return build_repsonse_with_message("Enter valid values",
+                                               response_status=status.HTTP_400_BAD_REQUEST)
         try:
             serializer.save()
         except ValidationError as e:
-            return Response({"message" : e.message}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": e.message}, status=status.HTTP_400_BAD_REQUEST)
+
         questions = Test.objects.get(pk=tpk, owner=user_profile).questions.all()
         serializer = QuestionListSerializer(questions, many=True)
         return Response(serializer.data)
 
     elif request.method == "DELETE":
         if test.publish:
-            raise Http404
+            return build_repsonse_with_message("Cannot delete question once test is published",
+                                               response_status=status.HTTP_400_BAD_REQUEST)
         question.delete()
+
         questions = Test.objects.get(pk=tpk, owner=user_profile).questions.all()
         serializer = QuestionListSerializer(questions, many=True)
         return Response(serializer.data)
 
 
-@rest_login_required_or_404
 @api_view(["POST"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def add_question_form(request, pk):
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
     test = get_object_or_404_status_response(Test, pk=pk, owner=user_profile, publish=False)
     serializer = QuestionSerializer(data=request.data)
+
     if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    serializer.save(test=test)
+        return build_repsonse_with_message("Enter valid values",
+                                           response_status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        serializer.save(test=test)
+    except ValidationError as e:
+        return build_repsonse_with_message(e.message, response_status=status.HTTP_412_PRECONDITION_FAILED)
     questions = Question.objects.filter(
         test=Test.objects.get(pk=pk, owner=user_profile)
     )
     return Response(QuestionListSerializer(questions, many=True).data)
 
 
-@rest_login_required_or_404
 @api_view(["GET"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def get_question_list(request, pk):
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
     test = get_object_or_404_status_response(Test, pk=pk)
     questions = Question.objects.filter(test=test)
 
     if not (has_attempted_test(user_profile, test) or is_user_owner_of_test(user_profile, test)):
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return build_repsonse_with_message("Not found",
+                                           response_status=status.HTTP_404_NOT_FOUND)
+
     questions_serializer = QuestionListSerializer(questions, many=True)
     for question_serializer in questions_serializer.data:
         option_list = [
@@ -92,8 +107,9 @@ def get_question_list(request, pk):
     return Response(questions_serializer.data)
 
 
-@rest_login_required_or_404
 @api_view(["GET", "POST"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def question_stat_form(request, qpk):
     question = get_object_or_404(Question, pk=qpk)
     user_profile = get_object_or_404(UserProfile, user__user=request.user)
@@ -116,8 +132,9 @@ def question_stat_form(request, qpk):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-@rest_login_required_or_404
 @api_view(["POST"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def bulk_upload(request, pk):
     user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
     test = get_object_or_404_status_response(Test, pk=pk, owner=user_profile, publish=False)
@@ -159,9 +176,7 @@ def bulk_upload(request, pk):
                 correct_answer=question[4],
                 test=test,
             )
-    except ValidationError:
-        return build_repsonse_with_message("", status.HTTP_412_PRECONDITION_FAILED)
+    except ValidationError as e:
+        return build_repsonse_with_message(e.message, status.HTTP_412_PRECONDITION_FAILED)
 
     return build_repsonse_with_message("Questions uploaded", status.HTTP_201_CREATED)
-
-

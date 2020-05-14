@@ -119,3 +119,12 @@ def build_repsonse_with_message(message, response_status=status.HTTP_200_OK):
     return Response(
         {"message": message}, status=response_status
     )
+
+
+def wrap_with_internal_service_exception(function):
+    def decorator(*args, **kwargs):
+        try:
+            return function(*args, **kwargs)
+        except Exception:
+            return build_repsonse_with_message("Oops! Something went wrong.", status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return decorator

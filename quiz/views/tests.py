@@ -16,8 +16,9 @@ from quiz.models import Test, TestStat, Feedback, Comment, Question
 from quiz.serializers import TestSerializerForHome, TestSerializer
 from quiz.utils import random_key_generator, rest_login_required_or_404, feedback_mail
 from quiz.constants import PageTitle
-from quiz.views.common_view_utils import build_user_context, perform_test_complete_operations, can_take_quiz, is_user_owner_of_test, \
-    get_object_or_none
+from quiz.views.common_view_utils import build_user_context, perform_test_complete_operations, can_take_quiz, \
+    is_user_owner_of_test, \
+    get_object_or_none, wrap_with_internal_service_exception, build_repsonse_with_message, get_object_or_404_status_response
 
 from topic.models import Topic
 from topic.serializers import TopicSerializer
@@ -44,75 +45,76 @@ def manage_test(request, pk=None):
     )
 
 
-@rest_login_required_or_404
 @api_view(["POST"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def add_test_form(request):
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
     serializer = TestSerializer(data=request.data)
     if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return build_repsonse_with_message("Invalid request", status=status.HTTP_400_BAD_REQUEST)
     serializer.save(owner=user_profile)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@rest_login_required_or_404
 @api_view(["DELETE"])
-def delete_test(request, pk):
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
-    test = get_object_or_404(Test, pk=pk, owner=user_profile)
-    if not test.publish:
-        test.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 @rest_login_required_or_404
+@wrap_with_internal_service_exception
+def delete_test(request, pk):
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
+    test = get_object_or_404_status_response(Test, pk=pk, owner=user_profile, publish=False)
+    test.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 @api_view(["GET"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def new_test(request):
     new_tests = Test.objects.filter(
         publish=True, is_active=True, private=False
     ).order_by("-created_on")
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
     new_tests = new_tests.exclude(owner=user_profile)[:5]
 
     serializer = TestSerializerForHome(new_tests, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@rest_login_required_or_404
 @api_view(["PUT"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def toggle_test_active(request, pk):
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
-    test = get_object_or_404(Test, pk=pk, owner=user_profile)
-    if not test.publish:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
+    test = get_object_or_404_status_response(Test, pk=pk, owner=user_profile, publish=True)
     test.is_active = not test.is_active
     test.save()
     return Response({"active": test.is_active}, status=status.HTTP_200_OK)
 
 
-@rest_login_required_or_404
 @api_view(["PUT"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def toggle_test_private(request, pk):
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
-    test = get_object_or_404(Test, pk=pk, owner=user_profile)
-    if not test.publish:
-        test.private = not test.private
-        if not test.private_key or len(test.private_key) == 0:
-            test.private_key = random_key_generator()
-            print("Private_key = ", test.private_key)
-        test.save()
-        return Response({"private": test.private}, status=status.HTTP_200_OK)
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
+    test = get_object_or_404_status_response(Test, pk=pk, owner=user_profile, publish=False)
+
+    test.private = not test.private
+    # check if it's set to private for the first time, then generate token
+    if not test.private_key or len(test.private_key) == 0:
+        test.private_key = random_key_generator()
+    test.save()
+    return Response({"private": test.private}, status=status.HTTP_200_OK)
 
 
-@rest_login_required_or_404
 @api_view(["PUT"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def toggle_test_publish(request, pk):
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
-    test = get_object_or_404(Test, pk=pk, owner=user_profile)
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
+    test = get_object_or_404_status_response(Test, pk=pk, owner=user_profile)
     if test.questions.count() == 0:
-        return Response(
-            {"message": "Empty question list"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return build_repsonse_with_message("Empty question list.", status=status.HTTP_400_BAD_REQUEST)
     test.publish = True
     test.is_active = True
     test.published_on = timezone.now()
@@ -120,36 +122,39 @@ def toggle_test_publish(request, pk):
     return Response({"published": test.publish}, status=status.HTTP_200_OK)
 
 
-@login_required
 @api_view(["POST"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def test_feedback(request, pk):
-    test = get_object_or_404(Test, publish=True, pk=pk)
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
-    get_object_or_404(
+    test = get_object_or_404_status_response(Test, publish=True, pk=pk)
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
+    get_object_or_404_status_response(
         TestStat, test=test, candidate=user_profile, has_completed=True
     )
-    if not Feedback.objects.filter(test=test, candidate=user_profile).exists():
-        try:
-            rating_int = int(request.POST.get("rating"))
-            message = request.POST.get("message", None)
-            if 0 <= rating_int <= 5:
-                feedback = Feedback.objects.create(
-                    test=test,
-                    candidate=user_profile,
-                    rating=rating_int,
-                    message=message,
-                )
-                feedback_mail(feedback)
-                return Response(status=status.HTTP_201_CREATED)
-        except:
-            pass
-    return Response(status=status.HTTP_400_BAD_REQUEST)
+    if Feedback.objects.filter(test=test, candidate=user_profile).exists():
+        return build_repsonse_with_message("Feedback already submitted.", status=status.HTTP_400_BAD_REQUEST)
+
+    rating_int = int(request.POST.get("rating"))
+    message = request.POST.get("message", None)
+
+    if 0 <= rating_int <= 5:
+        return build_repsonse_with_message("Rating out of expected bound.", status=status.HTTP_400_BAD_REQUEST)
+
+    feedback = Feedback.objects.create(
+        test=test,
+        candidate=user_profile,
+        rating=rating_int,
+        message=message,
+    )
+    feedback_mail(feedback)
+    return Response(status=status.HTTP_201_CREATED)
 
 
-@rest_login_required_or_404
 @api_view(["GET"])
+@rest_login_required_or_404
+@wrap_with_internal_service_exception
 def recommended_test(request):
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
+    user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
     recommended_tests = sorted(
         Test.objects.recommended(user_profile),
         key=lambda x: x.get_average_rating,
@@ -160,23 +165,16 @@ def recommended_test(request):
 
 
 @api_view(["GET"])
+@wrap_with_internal_service_exception
 def most_popular_test(request):
+    most_popular = Test.objects.filter(publish=True, is_active=True, private=False)
+
     if request.user.is_authenticated:
-        user_profile = get_object_or_404(UserProfile, user__user=request.user)
-        most_popular = sorted(
-            Test.objects.exclude(owner=user_profile).filter(
-                publish=True, is_active=True, private=False
-            ),
-            key=lambda x: x.get_attempts(),
-            reverse=True,
-        )[:5]
-    else:
-        most_popular = sorted(
-            Test.objects.filter(publish=True, is_active=True, private=False),
-            key=lambda x: x.get_attempts(),
-            reverse=True,
-        )[:5]
-    serializer = TestSerializerForHome(most_popular, many=True)
+        user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
+        most_popular = most_popular.exclude(owner=user_profile)
+
+    most_popular_sorted = sorted(most_popular, key=lambda test: test.get_attempts(), reverse=True)[:5]
+    serializer = TestSerializerForHome(most_popular_sorted, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 

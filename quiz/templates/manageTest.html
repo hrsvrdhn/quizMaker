@@ -172,10 +172,10 @@
 						type: 'success'
 					});
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
+				error: function(error) {
 					$(`.chip:contains('"${chip.tag}"<i class="material-icons close">close</i>')`).remove()
 					new PNotify({
-						text: 'Oops! Reload Again',
+						text: error.responseJSON.message,
 						type: 'error'
 					});
 				}
@@ -194,9 +194,9 @@
 						type: 'success'
 					});
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
+				error: function(error) {
 					new PNotify({
-						text: 'Oops! Reload Again',
+						text: error.responseJSON.message,
 						type: 'error'
 					});
 				}
@@ -229,7 +229,6 @@
 		$(".togglepublish").click(function(event){
 			if($("#questionList").is(":empty")) {
 				new PNotify({
-					title: 'Empty test!',
 					text: 'Nobody likes an empty test. Please add some questions.',
 					type: 'error',
 				});
@@ -268,11 +267,10 @@
 							});
 							window.location.reload();
 						},
-						error: function(jqXHR, textStatus, errorThrown) {
+						error: function(error) {
 							new PNotify({
-								title:'Error!',
 								type: 'error',
-								text: jqXHR.responseJSON['message'],
+								text: error.responseJSON.message,
 							});
 						}
 					});
@@ -295,10 +293,10 @@
 						type: 'success'
 					});
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
+				error: function(error) {
 					$(".toggleactive").prop('checked', !$(".toggleactive").prop('checked'));
 					new PNotify({
-						title:'Operation Failed!',
+						text: error.responseJSON.message,
 						type: 'error'
 					});
 				}
@@ -311,10 +309,10 @@
 				success: function(data, textStatus, jqXHR) {
 					window.location.reload();
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
+				error: function(error) {
 					$(".toggleprivate").prop('checked', !$(".toggleprivate").prop('checked'));
 					new PNotify({
-						title:'Operation Failed!',
+						text: error.responseJSON.message,
 						type: 'error'
 					});
 				}
@@ -344,9 +342,9 @@
 						success: function(data, textStatus, jqXHR) {
 							window.location.href = "{% url 'quiz:mytest' %}";
 						},
-						error: function(jqXHR, textStatus, errorThrown) {
+						error: function(error) {
 							new PNotify({
-								text:'Error! Test cannot be deleted',
+								text: error.responseJSON.message,
 								type: 'error',
 							});
 						}
@@ -383,8 +381,8 @@
 					$("#modal-title").html("Edit Question");
 					$("#questionSaveButton").prop("disabled", ispublished).html("Save");
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					console.log(errorThrown);
+				error: function(error) {
+					console.log(error.responseJSON.message);
 				}
 			});
 		});
@@ -392,8 +390,6 @@
 			event.preventDefault();
 			$("#id_question").val($(".ql-editor").html());
 			var $formData = $(this).serialize();
-			console.log("form object ", this);
-			console.log("sdfdsafdsafasdsadfasfs",$formData);
 			var $methodType = $('.ajax-question-form').attr('data-method');
 			var $thisURL = $('.ajax-question-form').attr('data-url');
 			console.log($formData);
@@ -423,13 +419,12 @@
 			});
 			console.log(data);
 			$('.ajax-question-form').trigger("reset");
-			$('#modal-close').click();
+			$('.modal-close.modal-action').click();
 			refreshQuestionList(data);
 		}
-		function handleFormError(jqXHR, textStatus, errorThrown) {
-			console.log(jqXHR, textStatus, errorThrown);
+		function handleFormError(error) {
 			new PNotify({
-				title: jqXHR.responseJSON.message,
+				title: error.responseJSON.message,
 				type: 'error'
 			});
 			console.log(errorThrown);
