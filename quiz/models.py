@@ -22,6 +22,8 @@ class TestManager(models.Manager):
             .distinct()
             .exclude(owner=user)
             .exclude(private=True)
+            .exclude(publish=False)
+            .exclude(is_active=False)
             .exclude(attempts__in=TestStat.objects.filter(candidate=user))
             .distinct()
         )
