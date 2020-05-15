@@ -1,6 +1,6 @@
 from django import forms
 from .models import Test, Question
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator
 
 
 class AddQuizForm(forms.ModelForm):

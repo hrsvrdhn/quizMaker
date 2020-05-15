@@ -52,7 +52,7 @@ def add_test_form(request):
     user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
     serializer = TestSerializer(data=request.data)
     if not serializer.is_valid():
-        return build_repsonse_with_message("Invalid request", status=status.HTTP_400_BAD_REQUEST)
+        return build_repsonse_with_message("Invalid request", response_status=status.HTTP_400_BAD_REQUEST)
     serializer.save(owner=user_profile)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -114,7 +114,7 @@ def toggle_test_publish(request, pk):
     user_profile = get_object_or_404_status_response(UserProfile, user__user=request.user)
     test = get_object_or_404_status_response(Test, pk=pk, owner=user_profile)
     if test.questions.count() == 0:
-        return build_repsonse_with_message("Empty question list.", status=status.HTTP_400_BAD_REQUEST)
+        return build_repsonse_with_message("Empty question list.", response_status=status.HTTP_400_BAD_REQUEST)
     test.publish = True
     test.is_active = True
     test.published_on = timezone.now()
@@ -132,13 +132,13 @@ def test_feedback(request, pk):
         TestStat, test=test, candidate=user_profile, has_completed=True
     )
     if Feedback.objects.filter(test=test, candidate=user_profile).exists():
-        return build_repsonse_with_message("Feedback already submitted.", status=status.HTTP_400_BAD_REQUEST)
+        return build_repsonse_with_message("Feedback already submitted.", response_status=status.HTTP_400_BAD_REQUEST)
 
     rating_int = int(request.POST.get("rating"))
     message = request.POST.get("message", None)
 
     if 0 <= rating_int <= 5:
-        return build_repsonse_with_message("Rating out of expected bound.", status=status.HTTP_400_BAD_REQUEST)
+        return build_repsonse_with_message("Rating out of expected bound.", response_status=status.HTTP_400_BAD_REQUEST)
 
     feedback = Feedback.objects.create(
         test=test,
@@ -239,16 +239,6 @@ def all_tests(request):
         }
         context["user_context"] = user_context
     return render(request, "alltest.html", context)
-
-
-@rest_login_required_or_404
-@api_view(["DELETE"])
-def delete_test(request, pk):
-    user_profile = get_object_or_404(UserProfile, user__user=request.user)
-    test = get_object_or_404(Test, pk=pk, owner=user_profile)
-    if not test.publish:
-        test.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @login_required

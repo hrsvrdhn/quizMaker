@@ -1,13 +1,12 @@
 import requests
-import sendgrid, bleach
+import bleach
 
 from django.db import models
 from django.dispatch import receiver
 from django.urls import reverse_lazy
-from django.conf import settings
 from django.db.models import Sum, Count
 
-from allauth.account.signals import user_logged_in, user_signed_up
+from allauth.account.signals import user_logged_in
 from allauth.socialaccount.models import SocialAccount
 
 from topic.models import Topic
@@ -42,7 +41,8 @@ class UserProfileManager(models.Manager):
             added = True
         return added
 
-    def is_following(self, follower, followee):
+    @staticmethod
+    def is_following(follower, followee):
         if not isinstance(follower, UserProfile) or not isinstance(
             followee, UserProfile
         ):

@@ -1,6 +1,5 @@
 import sendgrid
 
-from django.template import loader
 from django.conf import settings
 
 

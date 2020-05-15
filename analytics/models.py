@@ -72,7 +72,6 @@ class UserSession(models.Model):
 
     def end_session(self):
         session_key = self.session_key
-        ended = self.ended
         try:
             Session.objects.get(pk=session_key).delete()
             self.active = False
@@ -102,7 +101,6 @@ def user_logged_out(request, user, *args, **kwargs):
     try:
         session_key = request.session.session_key
         user_profile = UserProfile.objects.get(user__user=request.user)
-        ip_address = get_client_ip(request)
         user_session_obj = UserSession.objects.get(
             user=user_profile, session_key=session_key
         )
