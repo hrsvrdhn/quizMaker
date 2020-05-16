@@ -134,13 +134,10 @@ def test_feedback(request, pk):
     )
     if Feedback.objects.filter(test=test, candidate=user_profile).exists():
         return build_repsonse_with_message("Feedback already submitted.", response_status=status.HTTP_400_BAD_REQUEST)
-
     rating_int = int(request.POST.get("rating"))
     message = request.POST.get("message", None)
-
-    if 0 <= rating_int <= 5:
+    if not (0 <= rating_int <= 5):
         return build_repsonse_with_message("Rating out of expected bound.", response_status=status.HTTP_400_BAD_REQUEST)
-
     feedback = Feedback.objects.create(
         test=test,
         candidate=user_profile,
