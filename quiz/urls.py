@@ -61,7 +61,7 @@ urlpatterns = [
         r"^ajax/test/(?P<pk>[0-9]+)/add_comment$", views.add_comment, name="add_comment"
     ),
     re_path(
-        r"^ajax/test/(?P<pk>[0-9]+)/(?P<cpk>[0-9]+)/delete_comment$",
+        r"^ajax/test/(?P<user_pk>[0-9]+)/(?P<comment_pk>[0-9]+)/delete_comment$",
         views.delete_comment,
         name="delete_comment",
     ),

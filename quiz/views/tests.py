@@ -1,6 +1,7 @@
 import requests
+import datetime
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseNotFound, HttpResponseRedirect, Http404, HttpResponsePermanentRedirect
+from django.http import HttpResponseRedirect, Http404, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -181,13 +182,17 @@ def most_popular_test(request):
 @api_view(["GET"])
 def test_detail(request, pk):
     test = get_object_or_404(Test, publish=True, pk=pk)
+
     token = request.GET.get("token", None)
     if test.private and not compare_digest(test.private_key, token):
-        return HttpResponseNotFound("Not found")
+        raise Http404
+
     teststats = TestStat.objects.filter(test=test, has_completed=True).order_by(
         "-score"
     )
+
     comments = Comment.objects.filter(test=test).order_by("created_on")
+
     show_leaderboard = not test.private
     context = {
         "test": test,
@@ -195,6 +200,7 @@ def test_detail(request, pk):
         "meta_application_name": test.name + "|",
         "show_leaderboard": show_leaderboard,
         "comments": comments,
+        "current_datetime": datetime.datetime.now()
     }
     if request.user.is_authenticated:
         user_profile = get_object_or_404(UserProfile, user__user=request.user)
@@ -202,20 +208,11 @@ def test_detail(request, pk):
             user_teststat = TestStat.objects.get(test=test, candidate=user_profile)
         except:
             user_teststat = None
-        try:
-            pic_url = requests.get(user_profile.user.get_avatar_url()).url
-        except:
-            pic_url = None
         if test.owner == user_profile:
             context["show_leaderboard"] = True
         context["user_teststat"] = user_teststat
-        user_context = {
-            "name": user_profile.user.extra_data["name"],
-            "profile_pic": pic_url,
-            "pageTitle": test.name,
-        }
+        context["user_context"] = build_user_context(request.user, test.name)
 
-        context["user_context"] = user_context
     object_viewed_signal.send(test.__class__, instance=test, request=request)
     return render(request, "testDetail.html", context)
 

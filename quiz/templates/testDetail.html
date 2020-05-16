@@ -1,6 +1,7 @@
 {% extends 'account/base.html' %}
 
 {% block content %}
+{% load humanize %}
 <div style="margin: 2rem">
     <div class="row">
         <div class="card col s12 l12">
@@ -116,11 +117,11 @@
              <ul class="collection" id="comment_section">
                 {% for comment in comments %}
                 <li class="collection-item">
-                    <span class="title"><a href="{{ comment.candidate.get_absolute_url }}"><strong>{{ comment.candidate.user.extra_data.name }}</strong></span></a><br>
-                    {{ comment.created_on|date:"M d, Y" }}<br>
+                    <span class="title"><a href="{{ comment.candidate.get_absolute_url }}"><strong>{{ comment.candidate.user.extra_data.name }}</strong></a></span>
+                    <span class="grey-text">{{ comment.created_on|naturaltime }}</span><br>
                     {{ comment.message }}
                     {% if comment.candidate.user.user == request.user %}
-                        <a href="{% url 'quiz:delete_comment' pk=test.pk cpk=comment.pk %}" class="secondary-content"><i class="material-icons red-text">delete</i></a>
+                        <a href="{% url 'quiz:delete_comment' user_pk=test.pk comment_pk=comment.pk %}" class="secondary-content"><i class="material-icons red-text">delete</i></a>
                     {% endif %}
                 </li>
                 {% empty %}
@@ -153,10 +154,10 @@ $(document).ready(function() {
             success: function(data, textStatus, jqXHR) {
                 window.location.reload();
             },
-            error: function(jqXHR, textStatus, errorThrown) {
+            error: function(error) {
                 new PNotify({
-                    text:"Error adding comment",
-                    type:"error"
+                    text: error.responseJSON.message,
+                    type: "error"
                 });
             } 
         });
